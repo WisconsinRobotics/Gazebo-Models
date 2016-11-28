@@ -2,11 +2,10 @@
 A simulated model of various robots made by Wisconsin Robotics using the popular open source enviorment Gazebo.
 
 ## Requirements
-The simulation enviorment Gazebo is required for this repo. To install:
+The simulation environment Gazebo is required for this repo. To install:
 
 ```
-sudo apt install gazebo7
-sudo apt install libgazebo7-dev
+sudo apt install gazebo7 libgazebo7-dev
 ```
 At the making of this document Gazebo 7 was the lastest verison released, your exact commands may vary. To see all packages run:
 ```
