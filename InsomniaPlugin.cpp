@@ -17,8 +17,7 @@
 
 typedef int  _socket_t;
 
-std::vector<double> CurrentCommand;
-std::vector<double> PreviousCommand;
+
 Socket::UdpSocket port(20000);
 
 
@@ -83,9 +82,14 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	std::copy( intranges.begin(), intranges.end(), byterangesarray);
 	
 	//send byte array to awake over port
-
+	
+	port.Write(byterangesarray,sizeof(byterangesarray), nullptr );
+	
     	//delete[] buffer;
+	//delete ranges[];
+	
 }
+
 
 private: bool ReadJAUSMessage(Socket::UdpSocket port, std::vector<uint8_t>& buffer)
 {
