@@ -63,10 +63,21 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 	//Recieve from port (from awake)
 	std::vector<uint8_t> buffer;
-	if(!ReadJAUSMessage(port, buffer))
+	//if(!ReadJAUSMessage(port, buffer))
+	//{
+	//	return;
+	//}
+
+	// FOR TESTING
+	buffer[0] = DLE_BYTE;
+	buffer[1] = MOTOR_CONTROLLER_ID;
+	buffer[2] = 11;
+	buffer[3] = SET_SPEED_CMD;
+	for(int k = 4; k < 10; k++)
 	{
-	return;
+		buffer[k] = 5;
 	}
+	buffer[10] = ETX_BYTE;
 
 	//unpack jause into gazebo movements
     	MoveRobot(buffer);
@@ -104,44 +115,44 @@ private: bool ReadJAUSMessage(Socket::UdpSocket port, std::vector<uint8_t>& buff
 
 private: void MoveRobot(std::vector<uint8_t> buffer)
 {
-	uint8_t lfWlVel = 0;
-	uint8_t rtWlVel = 0;
-	uint8_t armTrnTblVel = 0;
-	uint8_t armShldrVel = 0;
-	uint8_t armElbwVel = 0;
-	uint8_t armWrstVel = 0;
-	uint8_t armClwRotVel = 0;
-	uint8_t armClwGrpVel = 0;
+	int lfWlVel = 0;
+	int rtWlVel = 0;
+	int armTrnTblVel = 0;
+	int armShldrVel = 0;
+	int armElbwVel = 0;
+	int armWrstVel = 0;
+	int armClwRotVel = 0;
+	int armClwGrpVel = 0;
 	if(buffer[0] == DLE_BYTE && buffer[1] == MOTOR_CONTROLLER_ID)
 	{
-		switch(buffer[2])
+		switch(buffer[3])
 		{
 			case SET_SPEED_CMD:
 			{
 
-				uint8_t ltMag = buffer[WHEEL_MAGNITUDE_LEFT_INDEX];
-				uint8_t ltDir = buffer[WHEEL_DIRECTION_LEFT_INDEX];
-				uint8_t rtMag = buffer[WHEEL_MAGNITUDE_RIGHT_INDEX];
-				uint8_t rtDir = buffer[WHEEL_DIRECTION_RIGHT_INDEX];
+				uint8_t ltMag = buffer[WHEEL_LEFT_INDEX] & 0x7F;
+				uint8_t ltDir = buffer[WHEEL_LEFT_INDEX] >> 7;
+				uint8_t rtMag = buffer[WHEEL_RIGHT_INDEX] & 0x7F;
+				uint8_t rtDir = buffer[WHEEL_RIGHT_INDEX] >> 7;
 				lfWlVel = ltDir ? -ltMag : ltMag;
 				rtWlVel = rtDir ? rtMag : -rtMag;
-
 				break;
 			}
 			case SET_ACTUATORS_CMD:
                 	{
-				uint8_t trnTblMag = buffer[ ARM_MAGNITUDE_TURNTABLE_INDEX ];
-				uint8_t shldrMag  = buffer[ ARM_MAGNITUDE_SHOULDER_INDEX  ];
-				uint8_t elbwMag   = buffer[ ARM_MAGNITUDE_ELBOW_INDEX     ];
-				uint8_t wrstMag   = buffer[ ARM_MAGNITUDE_WRIST_INDEX     ];
-				uint8_t clwRotMag = buffer[ ARM_MAGNITUDE_CLAWROT_INDEX   ];
-				uint8_t clwGrpMag = buffer[ ARM_MAGNITUDE_CLAWGRIP_INDEX  ];
-				uint8_t trnTblDir = buffer[ ARM_DIRECTION_TURNTABLE_INDEX ];
-				uint8_t shldrDir  = buffer[ ARM_DIRECTION_SHOULDER_INDEX  ];
-				uint8_t elbwDir   = buffer[ ARM_DIRECTION_ELBOW_INDEX     ];
-				uint8_t wrstDir   = buffer[ ARM_DIRECTION_WRIST_INDEX     ];
-				uint8_t clwRotDir = buffer[ ARM_DIRECTION_CLAWROT_INDEX   ];
-				uint8_t clwGrpDir = buffer[ ARM_DIRECTION_CLAWGRIP_INDEX  ];
+				uint8_t trnTblMag = buffer[ ARM_TURNTABLE_INDEX ] & 0x7F;
+				uint8_t shldrMag  = buffer[ ARM_SHOULDER_INDEX  ] & 0x7F;
+				uint8_t elbwMag   = buffer[ ARM_ELBOW_INDEX     ] & 0x7F;
+				uint8_t wrstMag   = buffer[ ARM_WRIST_INDEX     ] & 0x7F;
+				uint8_t clwRotMag = buffer[ ARM_CLAWROT_INDEX   ] & 0x7F;
+				uint8_t clwGrpMag = buffer[ ARM_CLAWGRIP_INDEX  ] & 0x7F;
+
+				uint8_t trnTblDir = buffer[ ARM_TURNTABLE_INDEX ] >> 7;
+				uint8_t shldrDir  = buffer[ ARM_SHOULDER_INDEX  ] >> 7;
+				uint8_t elbwDir   = buffer[ ARM_ELBOW_INDEX     ] >> 7;
+				uint8_t wrstDir   = buffer[ ARM_WRIST_INDEX     ] >> 7;
+				uint8_t clwRotDir = buffer[ ARM_CLAWROT_INDEX   ] >> 7;
+				uint8_t clwGrpDir = buffer[ ARM_CLAWGRIP_INDEX  ] >> 7;
 			
 				armTrnTblVel = trnTblDir ? trnTblMag : -trnTblMag;
 				armShldrVel  = shldrDir ? shldrMag: -shldrMag;
@@ -161,10 +172,10 @@ private: void MoveRobot(std::vector<uint8_t> buffer)
 
 	//torque to be constant
 
-	this->model->GetJoint("BogieLeft-Wheel0")->SetVelocity(0,lfWlVel);	//left	postive = forward
+	this->model->GetJoint("BogieLeft-Wheel0")->SetVelocity(0,lfWlVel);	//left	pos=forward
 	this->model->GetJoint("BogieLeft-Wheel1")->SetVelocity(0,lfWlVel);	//left
 	this->model->GetJoint("RockerLeft-Wheel2")->SetVelocity(0,lfWlVel);	//left
-	this->model->GetJoint("BogieRight-Wheel3")->SetVelocity(0,rtWlVel);	//right	negative = forward
+	this->model->GetJoint("BogieRight-Wheel3")->SetVelocity(0,rtWlVel);	//right	neg=forward
 	this->model->GetJoint("BogieRight-Wheel4")->SetVelocity(0,rtWlVel);	//right
 	this->model->GetJoint("RockerRight-Wheel5")->SetVelocity(0,rtWlVel);	//right
 
