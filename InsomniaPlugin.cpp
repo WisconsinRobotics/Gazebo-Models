@@ -14,11 +14,14 @@
 #include <vector>
 #include "UdpSocket.hpp"
 #include "CommonJAUS.hpp"
+#include "Sensors/LRF/LaserRangeFinder.h"
 
 typedef int  _socket_t;
 
-
+LaserRangeFinder lrf;
 Socket::UdpSocket port(20000);
+
+uint8_t testing = 1; 
 
 
 namespace gazebo
@@ -27,6 +30,7 @@ namespace gazebo
 
 class InsomniaPlugin : public ModelPlugin
 {
+
 public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 {
 
@@ -34,11 +38,12 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 	this->model = _parent;
 
 
-	if ((raySensor = std::dynamic_pointer_cast<sensors::RaySensor>(
-				sensors::SensorManager::Instance()->GetSensor("laser")))
-				== NULL) {
-			std::cout << "COULD NOT FIND LASER SENSOR: "<<std::endl;
-		}
+    // initialize the lrf
+    if (!lrf.Initialize())
+    {
+        std::cout << "Failed to open the LRF!" << std::endl;
+        return;
+    }
 
 		
 	// Listen to the update event. This event is broadcast every
@@ -53,7 +58,6 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 	
 }
 
-
 // Called by the world update start event
 public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
@@ -63,49 +67,54 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 	//Recieve from port (from awake)
 	std::vector<uint8_t> buffer;
-	//if(!ReadJAUSMessage(port, buffer))
-	//{
-	//	return;
-	//}
 
-	// FOR TESTING
-	buffer[0] = DLE_BYTE;
-	buffer[1] = MOTOR_CONTROLLER_ID;
-	buffer[2] = 11;
-	buffer[3] = SET_SPEED_CMD;
-	for(int k = 4; k < 10; k++)
-	{
-		buffer[k] = 5;
-	}
-	buffer[10] = ETX_BYTE;
+    if(!testing)
+    {
+	    //if(!ReadJAUSMessage(port, buffer))
+	    //{
+	    //	return;
+	    //}
+	    if(port.Read(buffer, sizeof(buffer), nullptr) != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
+	    {
+	    	return;
+	    }
+    }
+    else
+    {
+        TestJAUSPacket(buffer)
+    }
 
-	//unpack jause into gazebo movements
-    	MoveRobot(buffer);
+	//unpack JAUS packet into gazebo movements
+    MoveRobot(buffer);
 
-	std::vector<double> ranges;
-	raySensor->Ranges(ranges);
-
-	//convert lrf data into byte array to send
-	
-	std::vector<int> intranges(ranges.begin(), ranges.end());
-	uint8_t byterangesarray[100];
-	
-	std::copy( intranges.begin(), intranges.end(), byterangesarray);
-	
-	//send byte array to awake over port
-	
-	port.Write(byterangesarray,sizeof(byterangesarray), nullptr );
-	
-    	//delete[] buffer;
-	//delete ranges[];
-	
+    std::vector<uint8_t> lrfData;
+    // grab the data, serialize, and send it out
+	lrf.RefreshData();
+    lrf.DataPacker(lrfData);
+	if(!port.Write(lrfData,sizeof(lrfData), nullptr))
+    {
+        std::cout << "Failed to send buffer to listener!" << std::endl;
+        break;
+    }
 }
 
+private: void TestJAUSPacket(std::vector<uint8_t>& buffer)
+{
+	buffer.push_back(DLE_BYTE);
+	buffer.push_back(MOTOR_CONTROLLER_ID);
+	buffer.push_back(0x0B);
+	buffer.push_back(SET_SPEED_CMD);
+	for(int k = 4; k < 10; k++)
+	{
+		buffer.push_back(0x05);
+	}
+	buffer.push_back(ETX_BYTE);
+}
 
 private: bool ReadJAUSMessage(Socket::UdpSocket port, std::vector<uint8_t>& buffer)
 {
-	buffer.reserve(JAUS_DRIVE_MESSAGE_TOTAL_SIZE);
-	if(port.Read(&buffer[0], JAUS_DRIVE_MESSAGE_TOTAL_SIZE, nullptr) != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
+	//buffer.reserve(JAUS_DRIVE_MESSAGE_TOTAL_SIZE);
+	if(port.Read(buffer, sizeof(buffer), nullptr) != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
 	{
 		return false;
 	}
@@ -123,24 +132,26 @@ private: void MoveRobot(std::vector<uint8_t> buffer)
 	int armWrstVel = 0;
 	int armClwRotVel = 0;
 	int armClwGrpVel = 0;
+
 	if(buffer[0] == DLE_BYTE && buffer[1] == MOTOR_CONTROLLER_ID)
 	{
 		switch(buffer[3])
 		{
 			case SET_SPEED_CMD:
 			{
-
 				uint8_t ltMag = buffer[WHEEL_LEFT_INDEX] & 0x7F;
 				uint8_t ltDir = buffer[WHEEL_LEFT_INDEX] >> 7;
 				uint8_t rtMag = buffer[WHEEL_RIGHT_INDEX] & 0x7F;
 				uint8_t rtDir = buffer[WHEEL_RIGHT_INDEX] >> 7;
+
 				lfWlVel = ltDir ? -ltMag : ltMag;
 				rtWlVel = rtDir ? rtMag : -rtMag;
+
 				break;
 			}
 			case SET_ACTUATORS_CMD:
-                	{
-				uint8_t trnTblMag = buffer[ ARM_TURNTABLE_INDEX ] & 0x7F;
+            {
+			    uint8_t trnTblMag = buffer[ ARM_TURNTABLE_INDEX ] & 0x7F;
 				uint8_t shldrMag  = buffer[ ARM_SHOULDER_INDEX  ] & 0x7F;
 				uint8_t elbwMag   = buffer[ ARM_ELBOW_INDEX     ] & 0x7F;
 				uint8_t wrstMag   = buffer[ ARM_WRIST_INDEX     ] & 0x7F;
@@ -164,7 +175,7 @@ private: void MoveRobot(std::vector<uint8_t> buffer)
 				break;
 			}
 			default:
-                		// do nothing
+                // do nothing
 				break;
 
 		}

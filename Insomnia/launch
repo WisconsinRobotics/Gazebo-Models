@@ -2,8 +2,8 @@
 
 # export environment variables
 source /usr/share/gazebo/setup.sh
-export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:..//build
+export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:../build
 export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:$PWD
 export GAZEBO_RESOURCE_PATH=${GAZEBO_RESOURCE_PATH}:$PWD
 
-gazebo -u Insomnia2016_Full.world --verbose
+gazebo -u Worlds/simple_hill.world --verbose
