@@ -1,14 +1,12 @@
 #define _USE_MATH_DEFINES
 
 #include <iostream>
-#include <Windows.h>
+//#include <Windows.h>
 #include <algorithm>
 #include <cmath>
 
 #include "LaserRangeFinder.h"
 #include "Line.h"
-
-namespace LRF = rp::standalone::rplidar;
 
 LaserRangeFinder::LaserRangeFinder()
 {
@@ -20,12 +18,12 @@ LaserRangeFinder::~LaserRangeFinder()
 
 bool LaserRangeFinder::Initialize(void)
 {
-    if ((this->device = std::dynamic_pointer_cast<sensors::RaySensor>(
-         sensors::SensorManager::Instance()->GetSensor("laser")))== NULL)
+    if ((this->device = std::dynamic_pointer_cast<gazebo::sensors::RaySensor>(
+         gazebo::sensors::SensorManager::Instance()->GetSensor("laser")))== NULL)
     {
-			std::cout << "COULD NOT FIND LASER SENSOR" << std::endl;
-            return false
-	}
+        std::cout << "COULD NOT FIND LASER SENSOR" << std::endl;
+        return false;
+    }
 
     return true;
 }

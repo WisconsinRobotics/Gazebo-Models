@@ -34,9 +34,8 @@ class InsomniaPlugin : public ModelPlugin
 public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 {
 
-	// Store the pointer to the model
-	this->model = _parent;
-
+    // Store the pointer to the model
+    this->model = _parent;
 
     // initialize the lrf
     if (!lrf.Initialize())
@@ -61,68 +60,50 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 // Called by the world update start event
 public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-	//Check for data
+
+    //Check for data
 		//no? use old commands
 		//yes? get new commands
 
-	//Recieve from port (from awake)
-	std::vector<uint8_t> buffer;
+    //Recieve from port (from awake)
+    uint8_t buffer[JAUS_DRIVE_MESSAGE_TOTAL_SIZE];
 
     if(!testing)
     {
-	    //if(!ReadJAUSMessage(port, buffer))
-	    //{
-	    //	return;
-	    //}
-	    if(port.Read(buffer, sizeof(buffer), nullptr) != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
-	    {
-	    	return;
-	    }
+	if(port.Read(buffer, JAUS_DRIVE_MESSAGE_TOTAL_SIZE, nullptr) != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
+        {
+            return;
+	}
     }
     else
     {
-        TestJAUSPacket(buffer)
+        buffer[0] = DLE_BYTE;
+        buffer[1] = MOTOR_CONTROLLER_ID;
+        buffer[2] = 0x0B;
+        buffer[3] = SET_SPEED_CMD;
+        for(int k = 4; k < 10; k++)
+        {
+                buffer[k] = 0x05;
+        }
+        buffer[10] = ETX_BYTE;
     }
 
-	//unpack JAUS packet into gazebo movements
-    MoveRobot(buffer);
+    //unpack JAUS packet into gazebo movements
+    MoveRobot(buffer, JAUS_DRIVE_MESSAGE_TOTAL_SIZE);
 
-    std::vector<uint8_t> lrfData;
+    std::vector<char> lrfData;
     // grab the data, serialize, and send it out
-	lrf.RefreshData();
-    lrf.DataPacker(lrfData);
-	if(!port.Write(lrfData,sizeof(lrfData), nullptr))
-    {
-        std::cout << "Failed to send buffer to listener!" << std::endl;
-        break;
-    }
+    //lrf.RefreshData();
+    //lrf.DataPacker(lrfData);
+    //if(!port.Write(&lrfData[0], lrfData.size(), nullptr))
+    //{
+    //    std::cout << "Failed to send buffer to listener!" << std::endl;
+    //    return;
+    //}
+
 }
 
-private: void TestJAUSPacket(std::vector<uint8_t>& buffer)
-{
-	buffer.push_back(DLE_BYTE);
-	buffer.push_back(MOTOR_CONTROLLER_ID);
-	buffer.push_back(0x0B);
-	buffer.push_back(SET_SPEED_CMD);
-	for(int k = 4; k < 10; k++)
-	{
-		buffer.push_back(0x05);
-	}
-	buffer.push_back(ETX_BYTE);
-}
-
-private: bool ReadJAUSMessage(Socket::UdpSocket port, std::vector<uint8_t>& buffer)
-{
-	//buffer.reserve(JAUS_DRIVE_MESSAGE_TOTAL_SIZE);
-	if(port.Read(buffer, sizeof(buffer), nullptr) != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
-	{
-		return false;
-	}
-
-    return true;
-}
-
-private: void MoveRobot(std::vector<uint8_t> buffer)
+private: void MoveRobot(uint8_t *buffer, int length)
 {
 	int lfWlVel = 0;
 	int rtWlVel = 0;
@@ -132,6 +113,9 @@ private: void MoveRobot(std::vector<uint8_t> buffer)
 	int armWrstVel = 0;
 	int armClwRotVel = 0;
 	int armClwGrpVel = 0;
+
+        if(length != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
+        	return;
 
 	if(buffer[0] == DLE_BYTE && buffer[1] == MOTOR_CONTROLLER_ID)
 	{
@@ -204,7 +188,7 @@ private: void MoveRobot(std::vector<uint8_t> buffer)
 private: physics::ModelPtr model;
 
 //pointer to the laserSensor
-private: sensors::RaySensorPtr raySensor;
+//private: sensors::RaySensorPtr raySensor;
 
 // Pointer to the update event connection
 private: event::ConnectionPtr updateConnection;

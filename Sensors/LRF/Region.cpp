@@ -4,6 +4,7 @@
 #include "Line.h"
 
 #include <cmath>
+#include <cstring>
 #include <assert.h>
 
 Region::Region(const std::vector<Coordinate>& all_points)

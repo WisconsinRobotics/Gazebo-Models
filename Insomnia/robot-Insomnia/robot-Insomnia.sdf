@@ -32,7 +32,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Frame.STL</uri>
+	    <uri>model://robot-Insomnia/meshes/Frame.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -60,7 +60,7 @@
               <samples>360</samples>
               <resolution>1</resolution>
               <min_angle>0</min_angle>
-              <max_angle>6.28</max_angle>
+              <max_angle>6.266</max_angle>
             </horizontal>
           </scan>
           <range>
@@ -109,7 +109,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/RockerRight.STL</uri>
+            <uri>model://robot-Insomnia/meshes/RockerRight.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -159,7 +159,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/RockerLeft.STL</uri>
+            <uri>model://robot-Insomnia/meshes/RockerLeft.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -209,7 +209,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/BogieRight.STL</uri>
+            <uri>model://robot-Insomnia/meshes/BogieRight.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -255,7 +255,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel5_col.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel5_col.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -279,7 +279,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel5.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel5.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -325,7 +325,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel3_col.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel3_col.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -349,7 +349,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel3.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel3.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -395,7 +395,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel4_col.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel4_col.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -419,7 +419,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel4.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel4.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -469,7 +469,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/BogieLeft.STL</uri>
+            <uri>model://robot-Insomnia/meshes/BogieLeft.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -515,7 +515,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel2_col.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel2_col.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -539,7 +539,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel2.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel2.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -585,7 +585,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel0_col.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel0_col.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -609,7 +609,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel0.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel0.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -655,7 +655,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel1_col.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel1_col.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -679,7 +679,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wheel1.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wheel1.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -729,7 +729,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/DiffLeft.STL</uri>
+            <uri>model://robot-Insomnia/meshes/DiffLeft.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -818,7 +818,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/DiffRight.STL</uri>
+            <uri>model://robot-Insomnia/meshes/DiffRight.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -934,7 +934,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/ArmBase.STL</uri>
+            <uri>model://robot-Insomnia/meshes/ArmBase.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -986,7 +986,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Humerus.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Humerus.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1038,7 +1038,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Forearm.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Forearm.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1090,7 +1090,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Wrist.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Wrist.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1138,7 +1138,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Claw_col.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Claw_col.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -1162,7 +1162,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Claw.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Claw.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -1210,7 +1210,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Jaw_col.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Jaw_col.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -1234,7 +1234,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Insomnia/meshes/Jaw.STL</uri>
+            <uri>model://robot-Insomnia/meshes/Jaw.STL</uri>
           </mesh>
         </geometry>
       </visual>

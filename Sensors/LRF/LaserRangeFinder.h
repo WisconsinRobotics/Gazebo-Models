@@ -1,7 +1,22 @@
 #pragma once
 
-#include <vector>
+
+#include <boost/bind.hpp>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/physics/Model.hh>
+#include <gazebo/physics/Link.hh>
+#include <gazebo/physics/World.hh>
+#include <gazebo/sensors/RaySensor.hh>
+#include <gazebo/sensors/CameraSensor.hh>
+#include <gazebo/sensors/SensorManager.hh>
+
+#include <stdio.h>
+
+#include <vector>
+
 #include "Coordinate.h"
 #include "Region.h"
 
@@ -21,7 +36,7 @@ public:
 	void DataPacker(std::vector<char>&);
 
 private:
-    sensors::RaySensorPtr device;
+    gazebo::sensors::RaySensorPtr device;
     std::vector<Coordinate> frontCoordinates;
     std::vector<Region> frontRegions;
 };

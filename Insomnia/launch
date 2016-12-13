@@ -6,4 +6,5 @@ export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:../build
 export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:$PWD
 export GAZEBO_RESOURCE_PATH=${GAZEBO_RESOURCE_PATH}:$PWD
 
+#gzserver Worlds/simple_hill.world --verbose
 gazebo -u Worlds/simple_hill.world --verbose
