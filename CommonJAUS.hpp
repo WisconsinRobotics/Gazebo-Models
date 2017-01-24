@@ -24,4 +24,6 @@ const int ARM_WRIST_INDEX = 7;
 const int ARM_CLAWROT_INDEX = 8;
 const int ARM_CLAWGRIP_INDEX = 9;
 
+const int EMPTY_PAYLOAD_CMD_SIZE = 6;
+
 #endif

@@ -19,9 +19,9 @@
 typedef int  _socket_t;
 
 LaserRangeFinder lrf;
-Socket::UdpSocket port(20000);
+Socket::UdpSocket port(20001);
 
-uint8_t testing = 1; 
+uint8_t testing = 0; 
 
 
 namespace gazebo
@@ -45,15 +45,15 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     }
 
 		
-	// Listen to the update event. This event is broadcast every
-	// simulation iteration.
-	this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+    // Listen to the update event. This event is broadcast every
+    // simulation iteration.
+    this->updateConnection = event::Events::ConnectWorldUpdateBegin(
 			boost::bind(&InsomniaPlugin::OnUpdate, this, _1));
 
-	if(!port.Open())
-	{
-		std::cout << "Failed to open port!" << std::endl;
-	}
+    if(!port.Open())
+    {
+        std::cout << "Failed to open port!" << std::endl;
+    }
 	
 }
 
@@ -61,19 +61,17 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
 
-    //Check for data
-		//no? use old commands
-		//yes? get new commands
-
     //Recieve from port (from awake)
-    uint8_t buffer[JAUS_DRIVE_MESSAGE_TOTAL_SIZE];
+    uint8_t buffer[256];
+    int rd = 0;
 
     if(!testing)
     {
-	if(port.Read(buffer, JAUS_DRIVE_MESSAGE_TOTAL_SIZE, nullptr) != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
-        {
-            return;
-	}
+        uint8_t payload[256];
+        memset(buffer, 0, 256);
+        rd = port.Read(&buffer[0], 256, nullptr);
+        if (rd != 12)
+	    return;
     }
     else
     {
@@ -89,7 +87,8 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
     }
 
     //unpack JAUS packet into gazebo movements
-    MoveRobot(buffer, JAUS_DRIVE_MESSAGE_TOTAL_SIZE);
+    //MoveRobot(buffer, JAUS_DRIVE_MESSAGE_TOTAL_SIZE);
+    Drive(buffer);
 
     std::vector<char> lrfData;
     // grab the data, serialize, and send it out
@@ -103,10 +102,41 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 }
 
+private: void Drive(uint8_t *buffer)
+{
+    buffer[0] = buffer[0] < 0xA ? 0 : 0xA;
+    buffer[3] = buffer[3] < 0xA ? 0 : 0xA;
+    int lfWlVel = buffer[6] ? (-1 * (int)buffer[0]) : (int)buffer[0];
+    int rtWlVel = buffer[9] ? (int)buffer[3] : (-1 * (int)buffer[3]);
+    int armTrnTblVel = 0;
+    int armShldrVel = 0;
+    int armElbwVel = 0;
+    int armWrstVel = 0;
+    int armClwRotVel = 0;
+    int armClwGrpVel = 0;
+
+    this->model->GetJoint("BogieLeft-Wheel0")->SetVelocity(0,lfWlVel);	//left	pos=forward
+    this->model->GetJoint("BogieLeft-Wheel1")->SetVelocity(0,lfWlVel);	//left
+    this->model->GetJoint("RockerLeft-Wheel2")->SetVelocity(0,lfWlVel);	//left
+    this->model->GetJoint("BogieRight-Wheel3")->SetVelocity(0,rtWlVel);	//right	neg=forward
+    this->model->GetJoint("BogieRight-Wheel4")->SetVelocity(0,rtWlVel);	//right
+    this->model->GetJoint("RockerRight-Wheel5")->SetVelocity(0,rtWlVel);	//right
+
+    this->model->GetJoint("Frame-ArmBase")->SetVelocity(0,armTrnTblVel);  //negative = clockwise
+    this->model->GetJoint("ArmBase-Humerus")->SetVelocity(0,armShldrVel); //positive = up
+    this->model->GetJoint("Humerus-Forearm")->SetVelocity(0,armElbwVel);  //positive = up
+    this->model->GetJoint("Forearm-Wrist")->SetVelocity(0,armWrstVel);    //positive = up
+    this->model->GetJoint("Wrist-Claw")->SetVelocity(0,armClwRotVel);     //negative = clockwise
+    this->model->GetJoint("Claw-Jaw")->SetVelocity(0,armClwGrpVel);       //positive = closed
+
+}
+
 private: void MoveRobot(uint8_t *buffer, int length)
 {
-	int lfWlVel = 0;
-	int rtWlVel = 0;
+        buffer[0] = buffer[0] < 0xA ? 0 : 0xA;
+        buffer[3] = buffer[3] < 0xA ? 0 : 0xA;
+	int lfWlVel = buffer[6] ? (-1 * (int)buffer[0]) : (int)buffer[0];
+	int rtWlVel = buffer[9] ? (int)buffer[3] : (-1 * (int)buffer[3]);
 	int armTrnTblVel = 0;
 	int armShldrVel = 0;
 	int armElbwVel = 0;
@@ -116,20 +146,26 @@ private: void MoveRobot(uint8_t *buffer, int length)
 
         if(length != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
         	return;
-
+/*
 	if(buffer[0] == DLE_BYTE && buffer[1] == MOTOR_CONTROLLER_ID)
 	{
 		switch(buffer[3])
 		{
 			case SET_SPEED_CMD:
 			{
-				uint8_t ltMag = buffer[WHEEL_LEFT_INDEX] & 0x7F;
-				uint8_t ltDir = buffer[WHEEL_LEFT_INDEX] >> 7;
-				uint8_t rtMag = buffer[WHEEL_RIGHT_INDEX] & 0x7F;
-				uint8_t rtDir = buffer[WHEEL_RIGHT_INDEX] >> 7;
+				//uint8_t ltMag = buffer[WHEEL_LEFT_INDEX] & 0x7F;
+				//uint8_t ltDir = buffer[WHEEL_LEFT_INDEX] >> 7;
+				//uint8_t rtMag = buffer[WHEEL_RIGHT_INDEX] & 0x7F;
+				//uint8_t rtDir = buffer[WHEEL_RIGHT_INDEX] >> 7;
 
-				lfWlVel = ltDir ? -ltMag : ltMag;
-				rtWlVel = rtDir ? rtMag : -rtMag;
+				//lfWlVel = ltDir ? -ltMag : ltMag;
+				//rtWlVel = rtDir ? rtMag : -rtMag;
+
+                                buffer[4] = buffer[4] < 0xA ? 0x0 : buffer[4];
+                                buffer[5] = buffer[5] < 0xA ? 0x0 : buffer[5];
+
+                                lfWlVel = buffer[6] ? (-1 * (int)buffer[4]) : (int)buffer[4];
+                                rtWlVel = buffer[7] ? (int)buffer[5] : (-1 * (int)buffer[5]);
 
 				break;
 			}
@@ -164,7 +200,7 @@ private: void MoveRobot(uint8_t *buffer, int length)
 
 		}
 	}
-
+*/
 	//torque to be constant
 
 	this->model->GetJoint("BogieLeft-Wheel0")->SetVelocity(0,lfWlVel);	//left	pos=forward
