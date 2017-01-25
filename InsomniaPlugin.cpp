@@ -14,15 +14,16 @@
 #include <vector>
 #include "UdpSocket.hpp"
 #include "CommonJAUS.hpp"
-#include "Sensors/LRF/LaserRangeFinder.h"
+//#include "Sensors/LRF/LaserRangeFinder.h"
 
 typedef int  _socket_t;
 
-LaserRangeFinder lrf;
+//LaserRangeFinder lrf;
 Socket::UdpSocket port(20001);
 
 uint8_t testing = 0; 
 
+int lrf_count = 0;
 
 namespace gazebo
 {
@@ -38,12 +39,18 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     this->model = _parent;
 
     // initialize the lrf
-    if (!lrf.Initialize())
+    //if (!lrf.Initialize())
+    //{
+    //    std::cout << "Failed to open the LRF!" << std::endl;
+    //    return;
+    //}
+
+    if ((this->lrf = std::dynamic_pointer_cast<gazebo::sensors::RaySensor>(
+         gazebo::sensors::SensorManager::Instance()->GetSensor("laser")))== NULL)
     {
-        std::cout << "Failed to open the LRF!" << std::endl;
+        std::cout << "COULD NOT FIND LASER SENSOR" << std::endl;
         return;
     }
-
 		
     // Listen to the update event. This event is broadcast every
     // simulation iteration.
@@ -90,7 +97,23 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
     //MoveRobot(buffer, JAUS_DRIVE_MESSAGE_TOTAL_SIZE);
     Drive(buffer);
 
-    std::vector<char> lrfData;
+    std::vector<double> lrfData;
+    this->lrf->Ranges(lrfData);
+
+    if(lrfData.size() == 0)
+        return;
+
+    if(lrf_count == 100)
+    {    
+    //for(int i = 0; i < lrfData.size(); i += 20)
+    //{
+    //    for(int j = 0; j < 5; j++)
+    //        std::cout << lrfData.at(i+j) << " | ";
+    //    std::cout << std::endl;
+    //}
+    //std::cout << std::endl << std::endl;
+    lrf_count = 0;
+    }
     // grab the data, serialize, and send it out
     //lrf.RefreshData();
     //lrf.DataPacker(lrfData);
@@ -99,7 +122,8 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
     //    std::cout << "Failed to send buffer to listener!" << std::endl;
     //    return;
     //}
-
+    
+    lrf_count++;
 }
 
 private: void Drive(uint8_t *buffer)
@@ -224,7 +248,7 @@ private: void MoveRobot(uint8_t *buffer, int length)
 private: physics::ModelPtr model;
 
 //pointer to the laserSensor
-//private: sensors::RaySensorPtr raySensor;
+private: sensors::RaySensorPtr lrf;
 
 // Pointer to the update event connection
 private: event::ConnectionPtr updateConnection;
