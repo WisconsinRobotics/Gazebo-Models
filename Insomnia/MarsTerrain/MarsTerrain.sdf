@@ -1,8 +1,9 @@
 <?xml version='1.0'?>
 <sdf version='1.6'>
   <model name='MarsTerrain'>
-    <link name='link1'>
-      <pose frame=''>0 0 0 0 -0 0</pose>
+	<pose>0 0 0 0 0 0</pose>
+    <link name='Terrain'>
+      <pose Terrain=''>0 0 5 1.5 0 0</pose>
       <inertial>
         <mass>10000</mass>
         <inertia>
@@ -16,44 +17,47 @@
       </inertial>
       <self_collide>0</self_collide>
       <kinematic>0</kinematic>
+
       <visual name='visual'>
-        <pose frame=''>0 0 -34 0 0 0</pose>
+        <pose Terrain=''>0 0 0 0 0 0</pose>
+	    <material>
+                <script>
+                     <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/Wood</name>
+                </script>
+            </material>
         <geometry>
           <mesh>
-            <scale>1 1 1</scale>
+            <scale>.0001 .0001 .0001</scale>
             <uri>model://MarsTerrain/meshes/marsterrain.stl</uri>
           </mesh>
         </geometry>
         <cast_shadows>1</cast_shadows>
         <transparency>0</transparency>
       </visual>
+
+
       <collision name='collision'>
         <laser_retro>0</laser_retro>
-        <max_contacts>10</max_contacts>
-        <pose frame=''>0 0 -34 0 0 0</pose>
+       
+        <pose Terrain=''>0 0 0 0 0 0</pose>
         <geometry>
+<cast_shadows>1</cast_shadows>
           <mesh>
+		<scale>.0001 .0001 .0001</scale>
              <uri>model://MarsTerrain/meshes/marsterrain.stl</uri>
           </mesh>
         </geometry>
         <surface>
           <friction>
             <ode>
-              <mu>1</mu>
-              <mu2>1</mu2>
+              <mu>.3</mu>
+              <mu2>.3</mu2>
               <fdir1>0 0 0</fdir1>
               <slip1>0</slip1>
               <slip2>0</slip2>
             </ode>
-            <torsional>
-              <coefficient>1</coefficient>
-              <patch_radius>0</patch_radius>
-              <surface_radius>0</surface_radius>
-              <use_patch_radius>1</use_patch_radius>
-              <ode>
-                <slip>0</slip>
-              </ode>
-            </torsional>
+            
           </friction>
           <bounce>
             <restitution_coefficient>0</restitution_coefficient>
