@@ -20,14 +20,17 @@ using ignition::math::Angle;
 
 typedef int  _socket_t;
 
-Socket::UdpSocket client_port(20001);
+Socket::UdpSocket client_port(10000);
 Socket::UdpSocket lrf_port(20000);
 Socket::UdpSocket gps_port(20002);
 
 uint8_t testing = 0; 
-int lrf_en = 0;
+int lrf_en = 1;
 int gps_en = 0;
+
 int lrf_count = 0;
+
+struct sockaddr_in robot_addr;    
 
 namespace gazebo
 {
@@ -40,13 +43,6 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 {
     // Store the pointer to the model
     this->model = _parent;
-
-    // initialize the lrf
-    //if (!lrf.Initialize())
-    //{
-    //    std::cout << "Failed to open the LRF!" << std::endl;
-    //    return;
-    //}
 
     if ((this->lrf = std::dynamic_pointer_cast<gazebo::sensors::RaySensor>(
          gazebo::sensors::SensorManager::Instance()->GetSensor("laser"))) == NULL)
@@ -76,6 +72,12 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     {
         std::cout << "Failed to open lrf_port!" << std::endl;
     }
+
+
+    memset(&robot_addr, 0, sizeof(struct sockaddr_in));    
+    inet_pton(AF_INET, "192.168.1.21", &(robot_addr.sin_addr));    
+    robot_addr.sin_family = AF_INET;    
+    robot_addr.sin_port = htons(20001); 		
 	
 }
 
@@ -88,21 +90,27 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
     if(!testing)
     {
+		
+		// drive command
         rd = client_port.Read(&buffer[0], 256, nullptr);
-        if (rd != 12)
-	    	return;
+		printf("rd = %d\n", rd);
+        //if (rd != 12)
+	    //	return;
     }
     else
     {
+		// fake drive command
         for(int k = 0; k < 12; k++)
         {
-        	buffer[k] = 0xA;
+        	buffer[k] = 0x0;
         }
     }
 
+	// move robot
     Drive(buffer);
 
-    if(lrf_count == 300)
+//    if(lrf_count == 300)
+	if(true)
 	{
     	std::vector<double> lrfData;
     	this->lrf->Ranges(lrfData);
@@ -112,19 +120,38 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 	    //std::vector<char> payload;
 
-		char payload[lrfData.size()*2];
+		int len = lrfData.size()*2;
+
+		char payload[len];
+
 
 		int m = 0;
 		for(int l = 0; l < lrfData.size(); l++)
 		{
-			short tmp = (short)lrfData.at(l);
+			lrfData.at(l) = lrfData.at(l) * 1000;
+			float f = (float)lrfData.at(l);
+			uint32_t uint = (uint32_t)(*(uint32_t*)&f);
+			uint16_t tmp = (uint16_t)lrfData.at(l);
+			//payload[m++] = (char)(tmp >> 56);
+			//payload[m++] = (char)(tmp >> 48);
+			//payload[m++] = (char)(tmp >> 40);
+			//payload[m++] = (char)(tmp >> 32);
+			//payload[m++] = (char)(tmp >> 24);
+			//payload[m++] = (char)(tmp >> 16);
 			payload[m++] = (char)(tmp >> 8);
 			payload[m++] = (char)tmp;
+			if(l < 6 || l > lrfData.size() - 6)
+				printf("%d:%f ",l,lrfData.at(l));
 		}
-
+		printf("\n");
+/*
+		printf("%d %d %d %d %d | %d %d %d %d %d\n", 
+			payload[len-5],payload[len-4],payload[len-3],payload[len-2],payload[len-1],
+			payload[0],payload[1],payload[2],payload[3],payload[4]);
+*/
 		if(lrf_en == 1)
 		{
-			if(!lrf_port.Write(&payload[0], sizeof(payload), nullptr))
+			if(!lrf_port.Write(&payload[0], len, (struct sockaddr*)&robot_addr))
 			{
 				fprintf(stderr, "Failed to send lrf to listener!\n");
 				return;
@@ -165,15 +192,19 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
     }
 
 
-    lrf_count++;
+    //lrf_count++;
 }
 
 private: void Drive(uint8_t *buffer)
 {
-    buffer[0] = buffer[0] < 0xA ? 0 : 0xA;
-    buffer[3] = buffer[3] < 0xA ? 0 : 0xA;
-    int lfWlVel = buffer[6] ? (-1 * (int)buffer[0]) : (int)buffer[0];
-    int rtWlVel = buffer[9] ? (int)buffer[3] : (-1 * (int)buffer[3]);
+
+    //buffer[0] = buffer[0] < 0xA ? 0 : 0xA;
+    //buffer[3] = buffer[3] < 0xA ? 0 : 0xA;
+    int lfWlVel = (int)((int8_t)buffer[0]);
+    //int lfWlVel = buffer[6] ? (-1 * (int)buffer[0]) : (int)buffer[0];
+    //int rtWlVel = buffer[9] ? (int)buffer[3] : (-1 * (int)buffer[3]);
+    int rtWlVel = (-1*(int)((int8_t)buffer[1]));
+	//printf("lfWlVel = %d | rtWlVel = %d\n",lfWlVel,rtWlVel);
     int armTrnTblVel = 0;
     int armShldrVel = 0;
     int armElbwVel = 0;
