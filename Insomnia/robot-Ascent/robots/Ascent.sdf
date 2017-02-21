@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sdf version="1.5">
+  <model name="Ascent">
+    <pose>0 0 0 0 0 0</pose>
+    <link name="Frame">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <must_be_base_link>1</must_be_base_link>
+      <inertial>
+        <mass>13.608</mass>
+        <pose>.007 -.129 .097 0 0 0</pose>
+        <inertia>
+          <ixx>0.585282</ixx>
+          <ixy>.0234</ixy>
+          <ixz>-.07316</ixz>
+          <iyy>.8779</iyy>
+          <iyz>.08779</iyz>
+          <izz>.7316</izz>
+        </inertia>
+      </inertial>
+      <visual name="Frame_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/frame.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <link name="RockerLeft">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1.724</mass>
+        <pose>-.371 -.107 -.112 0 0 0</pose>
+        <inertia>
+          <ixx>.14559</ixx>
+          <ixy>-.0182</ixy>
+          <ixz>-.011</ixz>
+          <iyy>.03877</iyy>
+          <iyz>-.04287</iyz>
+          <izz>.1255</izz>
+        </inertia>
+      </inertial>
+      <visual name="RockerLeft_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/rockerLeft.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Frame-RockerLeft" type="revolute">
+      <parent>Frame</parent>
+      <child>RockerLeft</child>
+      <pose>-.363 .015 .048 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="RockerRight">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1.72</mass>
+        <pose>.37344 -.1067 -.117 0 0 0</pose>
+        <inertia>
+          <ixx>.1495</ixx>
+          <ixy>.01923</ixy>
+          <ixz>.011</ixz>
+          <iyy>.03793</iyy>
+          <iyz>-.04278</iyz>
+          <izz>.13081</izz>
+        </inertia>
+      </inertial>
+      <visual name="RockerRight_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/rockerRight.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Frame-RockerRight" type="revolute">
+      <parent>Frame</parent>
+      <child>RockerRight</child>
+      <pose>.363 .015 .048 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Tower">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>.90718</mass>
+        <pose>0 0.2515 .03429 0 0 0</pose>
+        <inertia>
+          <ixx>0.00053556224118608</ixx>
+          <ixy>1.78051620885542E-06</ixy>
+          <ixz>9.13437732245227E-06</ixz>
+          <iyy>0.000923342917421075</iyy>
+          <iyz>4.40523544142449E-05</iyz>
+          <izz>0.000578072280399893</izz>
+        </inertia>
+      </inertial>
+      <visual name="Tower_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/tower.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Turntable" type="revolute">
+      <parent>Frame</parent>
+      <child>Tower</child>
+      <pose>0 .252 -.041 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="BogieLeft">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1.90509</mass>
+        <pose>-.414 .246 -.231 0 0 0</pose>
+        <inertia>
+          <ixx>.07228</ixx>
+          <ixy>0</ixy>
+          <ixz>-0.005</ixz>
+          <iyy>.0138</iyy>
+          <iyz>.0003</iyz>
+          <izz>.0738</izz>
+        </inertia>
+      </inertial>
+      <visual name="BogieLeft_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/bogieLeft.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="RockerLeft-BogieLeft" type="revolute">
+      <parent>RockerLeft</parent>
+      <child>BogieLeft</child>
+      <pose>-.401 .253 -.112 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel2">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-.561 -.397 -.268 0 0 0</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel2_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="Wheel2" type="revolute">
+      <parent>RockerLeft</parent>
+      <child>Wheel2</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="BogieRight">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1.905</mass>
+        <pose>.411 .246 -.2286 0 0 0</pose>
+        <inertia>
+          <ixx>.07023</ixx>
+          <ixy>.00012</ixy>
+          <ixz>.00436</ixz>
+          <iyy>.01288</iyy>
+          <iyz>.00041</iyz>
+          <izz>.07091</izz>
+        </inertia>
+      </inertial>
+      <visual name="BogieRight_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/bogieRight.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="RockerRight-BogieRight" type="revolute">
+      <parent>RockerRight</parent>
+      <child>BogieRight</child>
+      <pose>.401 .253 -.112 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel5">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>.561 -.398 -.267 0 0 3.142</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel5_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="Wheel5" type="revolute">
+      <parent>RockerRight</parent>
+      <child>Wheel5</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Humerus">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>.0101 .363 .211 0 0 0</pose>
+        <inertia>
+          <ixx>.0125</ixx>
+          <ixy>.00018</ixy>
+          <ixz>.00059</ixz>
+          <iyy>.01173</iyy>
+          <iyz>-.0041</iyz>
+          <izz>.00383</izz>
+        </inertia>
+      </inertial>
+      <visual name="Humerus_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/humerus.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Shoulder" type="revolute">
+      <parent>Tower</parent>
+      <child>Humerus</child>
+      <pose>-.079 .267 .073 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <joint name="LinActRod-Humerus" type="revolute">
+      <parent>LinActRod</parent>
+      <child>Humerus</child>
+      <pose>-.044 .394 .414 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Forearm">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 .569 .3073 0 0 0</pose>
+        <inertia>
+          <ixx>.02344</ixx>
+          <ixy>-.00316</ixy>
+          <ixz>.00413</ixz>
+          <iyy>.01855</iyy>
+          <iyz>.01074</iyz>
+          <izz>.01279</izz>
+        </inertia>
+      </inertial>
+      <visual name="Forearm_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/forearm.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Elbow" type="revolute">
+      <parent>Humerus</parent>
+      <child>Forearm</child>
+      <pose>-.083 .486 .416 0 0 0</pose>
+      <axis>
+        <xyz>1 1.11452401143523E-10 -3.81436216067942E-12</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wrist">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>.5897</mass>
+        <pose>0 .691 .198 0 0 0</pose>
+        <inertia>
+          <ixx>.00108</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00047</iyy>
+          <iyz>0</iyz>
+          <izz>.00088</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wrist_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/wrist.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="WristPitch" type="revolute">
+      <parent>Forearm</parent>
+      <child>Wrist</child>
+      <pose>-.083 .671 .174 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name="Wheel0">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-.561 .463 -.269 0 0 0</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel0_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="Wheel0" type="revolute">
+      <parent>BogieLeft</parent>
+      <child>Wheel0</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0 </xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel1">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-.561 .033 -.268 0 0 0</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel1_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="Wheel1" type="revolute">
+      <parent>BogieLeft</parent>
+      <child>Wheel1</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel3">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>.561 .463 -.269 0 0 3.142</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel3_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="Wheel3" type="revolute">
+      <parent>BogieRight</parent>
+      <child>Wheel3</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel4">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>.561 .032 -.267 0 0 3.142</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel4_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="Wheel4" type="revolute">
+      <parent>BogieRight</parent>
+      <child>Wheel4</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="ClawBase">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>.27216</mass>
+        <pose>0 .8382 .1905 0 0 0</pose>
+        <inertia>
+          <ixx>.00053</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00015</iyy>
+          <iyz>0</iyz>
+          <izz>.0005</izz>
+        </inertia>
+      </inertial>
+      <visual name="ClawBase_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/clawBase.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="WristRot" type="revolute">
+      <parent>Wrist</parent>
+      <child>ClawBase</child>
+      <pose>0 0.759 .188 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Jaw0">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>.04536</mass>
+        <pose>-.03175 .94234 .19355 0 0 0</pose>
+        <inertia>
+          <ixx>.000073</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.000029</iyy>
+          <iyz>0</iyz>
+          <izz>.000059</izz>
+        </inertia>
+      </inertial>
+      <visual name="Jaw0_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/jaw0.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="Jaw0_col">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/jaw0col.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="Jaw0" type="revolute">
+      <parent>ClawBase</parent>
+      <child>Jaw0</child>
+      <pose>-0.0125 .884 .225 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Jaw1">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>.04536</mass>
+        <pose>.03175 .94234 .19355 0 0 0</pose>
+        <inertia>
+          <ixx>.000073</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.000029</iyy>
+          <iyz>0</iyz>
+          <izz>.000059</izz>
+        </inertia>
+      </inertial>
+      <visual name="Jaw1_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/jaw1.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="Jaw1_col">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://Ascent/meshes/jaw1col.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="Jaw1" type="revolute">
+      <parent>ClawBase</parent>
+      <child>Jaw1</child>
+      <pose>.0125 .884 .225 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="LinActBase">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1.905</mass>
+        <pose>.033 .274 .2667 0 0 0</pose>
+        <inertia>
+          <ixx>.01563</ixx>
+          <ixy>.00269</ixy>
+          <ixz>.00301</ixz>
+          <iyy>.01624</iyy>
+          <iyz>-.00635</iyz>
+          <izz>.01115</izz>
+        </inertia>
+      </inertial>
+      <visual name="LinActBase_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/linActBase.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Tower-LinActBase" type="revolute">
+      <parent>Tower</parent>
+      <child>LinActBase</child>
+      <pose>-.079 .236 .147 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="LinActRod">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>.2268</mass>
+        <pose>0 0.36068 .35306 0 0 0</pose>
+        <inertia>
+          <ixx>.00041</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00032</iyy>
+          <iyz>-.00018</iyz>
+          <izz>.00012</izz>
+        </inertia>
+      </inertial>
+      <visual name="LinActRod_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Ascent/meshes/linActRod.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="LinActBase-LinActRod" type="prismatic">
+      <parent>LinActBase</parent>
+      <child>LinActRod</child>
+      <pose>0 .399 .424 0 0 0</pose>
+      <axis>
+        <xyz>0 .499 .866</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="DiffA">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <!--<pose>-.363 .015 .148 0 0 0</pose>-->
+      <pose>0 .1 .048 0 0 0</pose>
+    </link>
+    <joint name="Frame-DiffA" type="revolute">
+      <parent>Frame</parent>
+      <child>DiffA</child>
+      <!--<pose>-.363 0.015 .148 0 0 0</pose>-->
+      <pose>0 .1 .048 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <!--<joint name="RockerLeft-DiffA" type="revolute">
+      <parent>RockerLeft</parent>
+      <child>DiffA</child>
+      <pose>-.363 0.015 .148 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>-->
+    <joint name="RockerLeft-DiffA_gearbox" type="gearbox">
+      <parent>RockerLeft</parent>
+      <child>DiffA</child>
+      <gearbox_ratio>-1</gearbox_ratio>
+      <gearbox_reference_body>RockerLeft</gearbox_reference_body>
+      <axis>
+        <xyz>1 0 0</xyz>
+      </axis>
+      <axis2>
+        <xyz>0 1 0</xyz>
+      </axis2>
+    </joint>
+    <!--<link name="DiffB">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>.363 .015 .148 0 0 0</pose>
+    </link>-->
+    <!--<joint name="Frame-DiffB" type="revolute">
+      <parent>Frame</parent>
+      <child>DiffB</child>
+      <pose>.363 .015 .148 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>-->
+    <!--<joint name="RockerRight-DiffB" type="revolute">
+      <parent>RockerRight</parent>
+      <child>DiffB</child>
+      <pose>.363 .015 .148 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>-->
+    <joint name="RockerRight-DiffA_gearbox" type="gearbox">
+      <parent>RockerRight</parent>
+      <child>DiffA</child>
+      <gearbox_ratio>-1</gearbox_ratio>
+      <gearbox_reference_body>RockerRight</gearbox_reference_body>
+      <axis>
+        <xyz>1 0 0</xyz>
+      </axis>
+      <axis2>
+        <xyz>0 1 0</xyz>
+      </axis2>
+    </joint>
+    <!--<joint name="DiffA-DiffB" type="revolute">
+      <parent>DiffA</parent>
+      <child>DiffB</child>
+      <pose>.363 .015 .148 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>-->
+    <!--<joint name="DiffA-DiffB_gearbox2" type="gearbox">
+      <parent>DiffA</parent>
+      <child>DiffB</child>
+      <gearbox_ratio>1</gearbox_ratio>
+      <gearbox_reference_body>DiffA</gearbox_reference_body>
+      <axis>
+        <xyz>1 0 0</xyz>
+      </axis>
+      <axis2>
+        <xyz>1 0 0</xyz>
+      </axis2>
+    </joint>-->
+  </model>
+</sdf>
