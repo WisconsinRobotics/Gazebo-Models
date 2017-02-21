@@ -117,8 +117,11 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	math::Quaternion orientation = this->imu->Orientation();
 
 	double yaw = orientation.GetYaw();
+	double yaw_degree = yaw * 180 / M_PI;  
+    printf("Yaw is: %f\n", yaw);
 
-	printf("Yaw is: %f\n", yaw);
+	char tmp = (char)yaw_degree;
+
 
 //    if(lrf_count == 300)
 	if(true)
@@ -247,4 +250,4 @@ private: event::ConnectionPtr updateConnection;
 
 // Register this plugin with the simulator
 GZ_REGISTER_MODEL_PLUGIN(InsomniaPlugin)
-}
+} 
