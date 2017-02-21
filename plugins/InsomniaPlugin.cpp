@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <gazebo/sensors/sensors.hh>
 #include <vector>
-#include "../Utils/UdpSocket.hpp"
 #include <math.h>
+#include "../utils/UdpSocket.hpp"
 
 
 typedef int  _socket_t;
@@ -107,7 +107,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		// fake drive command
         for(int k = 0; k < 12; k++)
         {
-        	buffer[k] = 0x0;
+        	buffer[k] = 0xA;
         }
     }
 
@@ -118,7 +118,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 	double yaw = orientation.GetYaw();
 	double yaw_degree = yaw * 180 / M_PI;  
-    printf("Yaw is: %f\n", yaw);
+    //printf("Yaw is: %f\n", yaw);
 
 	char tmp = (char)yaw_degree;
 

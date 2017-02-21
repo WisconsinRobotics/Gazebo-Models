@@ -27,10 +27,58 @@
         </material>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/frame.stl</uri>
+            <uri>model://robot-Ascent/meshes/frame.stl</uri>
           </mesh>
         </geometry>
       </visual>
+	  <sensor name="laser" type="ray">
+      	<pose>0 .252 -.041 0 0 0</pose>
+		<ray>
+		  <scan>
+		  	<horizontal>
+			  <samples>360</samples>
+			  <resolution>1</resolution>
+			  <min_angle>0</min_angle>
+			  <max_angle>6.266</max_angle>
+			</horizontal>
+		  </scan>
+		  <range>
+		  	<min>0.02</min>
+			<max>6</max>
+			<resolution>0.01</resolution>
+		  </range>
+		  <noise>
+		  	<type>gaussian</type>
+			<mean>0.0</mean>
+			<stddev>0.01</stddev>
+		  </noise>
+		</ray>
+		<always_on>1</always_on>
+		<update_rate>60</update_rate>
+		<visualize>true</visualize>
+	  </sensor>
+	  <sensor name="gps" type="gps">
+      	<pose>0 .252 -.041 0 0 0</pose>
+	  	<update_rate>10.0</update_rate>
+		<always_on>true</always_on>
+		<gps>
+		  <position_sensing>
+		  	<horizontal>
+			  <noise type="gaussian">
+			    <mean>0</mean>
+				<stddev>1</stddev>
+			  </noise>
+			</horizontal>
+		  </position_sensing>
+		</gps>
+	  </sensor>
+	  <sensor name="imu" type="imu">
+      	<pose>0 .252 -.041 0 0 0</pose>
+	  	<update_rate>10.0</update_rate>
+		<always_on>true</always_on>
+		<imu>
+		</imu>
+	  </sensor>
     </link>
     <link name="RockerLeft">
       <gravity>1</gravity>
@@ -56,7 +104,7 @@
         </material>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/rockerLeft.STL</uri>
+            <uri>model://robot-Ascent/meshes/rockerLeft.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -97,7 +145,7 @@
         </material>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/rockerRight.STL</uri>
+            <uri>model://robot-Ascent/meshes/rockerRight.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -138,7 +186,7 @@
         </material>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/tower.STL</uri>
+            <uri>model://robot-Ascent/meshes/tower.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -179,7 +227,7 @@
         </material>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/bogieLeft.STL</uri>
+            <uri>model://robot-Ascent/meshes/bogieLeft.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -220,7 +268,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/wheel.stl</uri>
+            <uri>model://robot-Ascent/meshes/wheel.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -270,7 +318,7 @@
         </material>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/bogieRight.STL</uri>
+            <uri>model://robot-Ascent/meshes/bogieRight.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -311,7 +359,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/wheel.stl</uri>
+            <uri>model://robot-Ascent/meshes/wheel.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -361,7 +409,7 @@
         </material>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/humerus.STL</uri>
+            <uri>model://robot-Ascent/meshes/humerus.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -414,7 +462,7 @@
         </material>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/forearm.STL</uri>
+            <uri>model://robot-Ascent/meshes/forearm.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -456,7 +504,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/wrist.stl</uri>
+            <uri>model://robot-Ascent/meshes/wrist.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -498,7 +546,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/wheel.stl</uri>
+            <uri>model://robot-Ascent/meshes/wheel.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -548,7 +596,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/wheel.stl</uri>
+            <uri>model://robot-Ascent/meshes/wheel.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -598,7 +646,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/wheel.stl</uri>
+            <uri>model://robot-Ascent/meshes/wheel.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -648,7 +696,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/wheel.stl</uri>
+            <uri>model://robot-Ascent/meshes/wheel.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -699,7 +747,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/clawBase.stl</uri>
+            <uri>model://robot-Ascent/meshes/clawBase.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -741,7 +789,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/jaw0.stl</uri>
+            <uri>model://robot-Ascent/meshes/jaw0.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -749,7 +797,7 @@
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/jaw0col.stl</uri>
+            <uri>model://robot-Ascent/meshes/jaw0col.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -791,7 +839,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/jaw1.stl</uri>
+            <uri>model://robot-Ascent/meshes/jaw1.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -799,7 +847,7 @@
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
-            <uri>model://Ascent/meshes/jaw1col.stl</uri>
+            <uri>model://robot-Ascent/meshes/jaw1col.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -841,7 +889,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/linActBase.stl</uri>
+            <uri>model://robot-Ascent/meshes/linActBase.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -883,7 +931,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://Ascent/meshes/linActRod.stl</uri>
+            <uri>model://robot-Ascent/meshes/linActRod.stl</uri>
           </mesh>
         </geometry>
       </visual>
@@ -941,5 +989,6 @@
         <xyz>0 1 0</xyz>
       </axis2>
     </joint>
+	<plugin name="AscentPlugin" filename="libAscentPlugin.so"/>
   </model>
 </sdf>

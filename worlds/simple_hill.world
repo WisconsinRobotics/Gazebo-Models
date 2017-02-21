@@ -18,10 +18,10 @@
     <include>
       <uri>model://ground_plane</uri>
     </include>
-    <include>
+<!--    <include>
       <uri>model://robot-Insomnia</uri>
       <pose>0 0 1 1.57 0 0</pose>
-    </include>
+    </include>-->
     <model name="box">
     <static>true</static>
       <pose>0 0 0 0 0 0</pose>\
