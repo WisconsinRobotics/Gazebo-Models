@@ -80,7 +80,6 @@
       </sensor>
 	  <sensor name="gps" type="gps">
 		<pose>-0.388647473622 -0.0705008179599 -0.00315744590174 1.5707963269 0 3.13</pose>
-<!--        <pose>0 0 0 0 0 0</pose>-->
 		<update_rate>10.0</update_rate>
 		<always_on>true</always_on>
 		<gps>
@@ -93,6 +92,13 @@
 		  </horizontal>
 		 </position_sensing>
 		</gps>
+	  </sensor>
+	  <sensor name="imu" type="imu">
+	   	<pose>-0.388647473622 -0.0705008179599 -0.00315744590174 1.5707963269 0 3.13</pose>
+		<update_rate>10.0</update_rate>
+		<always_on>true</always_on>
+		<imu>
+		</imu>
 	  </sensor>
     </link>
     <link name="RockerRight">

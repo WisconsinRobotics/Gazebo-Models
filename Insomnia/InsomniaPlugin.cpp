@@ -12,11 +12,9 @@
 #include <stdio.h>
 #include <gazebo/sensors/sensors.hh>
 #include <vector>
-#include "UdpSocket.hpp"
-#include "CommonJAUS.hpp"
+#include "Utils/UdpSocket.hpp"
 #include <math.h>
 
-using ignition::math::Angle;
 
 typedef int  _socket_t;
 
@@ -24,7 +22,7 @@ Socket::UdpSocket client_port(10000);
 Socket::UdpSocket lrf_port(20000);
 Socket::UdpSocket gps_port(20002);
 
-uint8_t testing = 0; 
+uint8_t testing = 1; 
 int lrf_en = 1;
 int gps_en = 0;
 
@@ -55,6 +53,13 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 		 gazebo::sensors::SensorManager::Instance()->GetSensor("gps"))) == NULL)
 	{
 		std::cout << "COULD NOT FIND GPS SENSOR" << std::endl;
+		return;
+	}
+
+	if ((this->imu = std::dynamic_pointer_cast<gazebo::sensors::ImuSensor>(
+		 gazebo::sensors::SensorManager::Instance()->GetSensor("imu"))) == NULL)
+	{
+		std::cout << "COULD NOT FIND IMU SENSOR" << std::endl;
 		return;
 	}
 		
@@ -109,6 +114,12 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	// move robot
     Drive(buffer);
 
+	math::Quaternion orientation = this->imu->Orientation();
+
+	double yaw = orientation.GetYaw();
+
+	printf("Yaw is: %f\n", yaw);
+
 //    if(lrf_count == 300)
 	if(true)
 	{
@@ -117,8 +128,6 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
     	if(lrfData.size() == 0)
         	return;
-
-	    //std::vector<char> payload;
 
 		int len = lrfData.size()*2;
 
@@ -132,23 +141,10 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 			float f = (float)lrfData.at(l);
 			uint32_t uint = (uint32_t)(*(uint32_t*)&f);
 			uint16_t tmp = (uint16_t)lrfData.at(l);
-			//payload[m++] = (char)(tmp >> 56);
-			//payload[m++] = (char)(tmp >> 48);
-			//payload[m++] = (char)(tmp >> 40);
-			//payload[m++] = (char)(tmp >> 32);
-			//payload[m++] = (char)(tmp >> 24);
-			//payload[m++] = (char)(tmp >> 16);
 			payload[m++] = (char)(tmp >> 8);
 			payload[m++] = (char)tmp;
-			if(l < 6 || l > lrfData.size() - 6)
-				printf("%d:%f ",l,lrfData.at(l));
 		}
-		printf("\n");
-/*
-		printf("%d %d %d %d %d | %d %d %d %d %d\n", 
-			payload[len-5],payload[len-4],payload[len-3],payload[len-2],payload[len-1],
-			payload[0],payload[1],payload[2],payload[3],payload[4]);
-*/
+
 		if(lrf_en == 1)
 		{
 			if(!lrf_port.Write(&payload[0], len, (struct sockaddr*)&robot_addr))
@@ -230,95 +226,6 @@ private: void Drive(uint8_t *buffer)
 
 }
 
-private: void MoveRobot(uint8_t *buffer, int length)
-{
-    buffer[0] = buffer[0] < 0xA ? 0 : 0xA;
-    buffer[3] = buffer[3] < 0xA ? 0 : 0xA;
-	int lfWlVel = buffer[6] ? (-1 * (int)buffer[0]) : (int)buffer[0];
-	int rtWlVel = buffer[9] ? (int)buffer[3] : (-1 * (int)buffer[3]);
-	int armTrnTblVel = 0;
-	int armShldrVel = 0;
-	int armElbwVel = 0;
-	int armWrstVel = 0;
-	int armClwRotVel = 0;
-	int armClwGrpVel = 0;
-
-        if(length != JAUS_DRIVE_MESSAGE_TOTAL_SIZE)
-        	return;
-/*
-	if(buffer[0] == DLE_BYTE && buffer[1] == MOTOR_CONTROLLER_ID)
-	{
-		switch(buffer[3])
-		{
-			case SET_SPEED_CMD:
-			{
-				//uint8_t ltMag = buffer[WHEEL_LEFT_INDEX] & 0x7F;
-				//uint8_t ltDir = buffer[WHEEL_LEFT_INDEX] >> 7;
-				//uint8_t rtMag = buffer[WHEEL_RIGHT_INDEX] & 0x7F;
-				//uint8_t rtDir = buffer[WHEEL_RIGHT_INDEX] >> 7;
-
-				//lfWlVel = ltDir ? -ltMag : ltMag;
-				//rtWlVel = rtDir ? rtMag : -rtMag;
-
-                                buffer[4] = buffer[4] < 0xA ? 0x0 : buffer[4];
-                                buffer[5] = buffer[5] < 0xA ? 0x0 : buffer[5];
-
-                                lfWlVel = buffer[6] ? (-1 * (int)buffer[4]) : (int)buffer[4];
-                                rtWlVel = buffer[7] ? (int)buffer[5] : (-1 * (int)buffer[5]);
-
-				break;
-			}
-			case SET_ACTUATORS_CMD:
-            {
-			    uint8_t trnTblMag = buffer[ ARM_TURNTABLE_INDEX ] & 0x7F;
-				uint8_t shldrMag  = buffer[ ARM_SHOULDER_INDEX  ] & 0x7F;
-				uint8_t elbwMag   = buffer[ ARM_ELBOW_INDEX     ] & 0x7F;
-				uint8_t wrstMag   = buffer[ ARM_WRIST_INDEX     ] & 0x7F;
-				uint8_t clwRotMag = buffer[ ARM_CLAWROT_INDEX   ] & 0x7F;
-				uint8_t clwGrpMag = buffer[ ARM_CLAWGRIP_INDEX  ] & 0x7F;
-
-				uint8_t trnTblDir = buffer[ ARM_TURNTABLE_INDEX ] >> 7;
-				uint8_t shldrDir  = buffer[ ARM_SHOULDER_INDEX  ] >> 7;
-				uint8_t elbwDir   = buffer[ ARM_ELBOW_INDEX     ] >> 7;
-				uint8_t wrstDir   = buffer[ ARM_WRIST_INDEX     ] >> 7;
-				uint8_t clwRotDir = buffer[ ARM_CLAWROT_INDEX   ] >> 7;
-				uint8_t clwGrpDir = buffer[ ARM_CLAWGRIP_INDEX  ] >> 7;
-			
-				armTrnTblVel = trnTblDir ? trnTblMag : -trnTblMag;
-				armShldrVel  = shldrDir ? shldrMag: -shldrMag;
-				armElbwVel   = elbwDir ? elbwMag : -elbwMag;
-				armWrstVel   = wrstDir ? wrstMag : -wrstMag;
-				armClwRotVel = clwRotDir ? clwRotMag : -clwRotMag;
-				armClwGrpVel = clwGrpDir ? -clwGrpMag : clwGrpMag;
-
-				break;
-			}
-			default:
-                // do nothing
-				break;
-
-		}
-	}
-*/
-	//torque to be constant
-
-	this->model->GetJoint("BogieLeft-Wheel0")->SetVelocity(0,lfWlVel);	//left	pos=forward
-	this->model->GetJoint("BogieLeft-Wheel1")->SetVelocity(0,lfWlVel);	//left
-	this->model->GetJoint("RockerLeft-Wheel2")->SetVelocity(0,lfWlVel);	//left
-	this->model->GetJoint("BogieRight-Wheel3")->SetVelocity(0,rtWlVel);	//right	neg=forward
-	this->model->GetJoint("BogieRight-Wheel4")->SetVelocity(0,rtWlVel);	//right
-	this->model->GetJoint("RockerRight-Wheel5")->SetVelocity(0,rtWlVel);	//right
-
-	this->model->GetJoint("Frame-ArmBase")->SetVelocity(0,armTrnTblVel);  //negative = clockwise
-	this->model->GetJoint("ArmBase-Humerus")->SetVelocity(0,armShldrVel); //positive = up
-	this->model->GetJoint("Humerus-Forearm")->SetVelocity(0,armElbwVel);  //positive = up
-	this->model->GetJoint("Forearm-Wrist")->SetVelocity(0,armWrstVel);    //positive = up
-	this->model->GetJoint("Wrist-Claw")->SetVelocity(0,armClwRotVel);     //negative = clockwise
-	this->model->GetJoint("Claw-Jaw")->SetVelocity(0,armClwGrpVel);       //positive = closed
-
-}
-
-
 // Pointer to the model
 private: physics::ModelPtr model;
 
@@ -327,6 +234,9 @@ private: sensors::RaySensorPtr lrf;
 
 //pointer to the gps sensor
 private: sensors::GpsSensorPtr gps;
+
+//pointer to the imu sensor
+private: sensors::ImuSensorPtr imu;
 
 // Pointer to the update event connection
 private: event::ConnectionPtr updateConnection;
