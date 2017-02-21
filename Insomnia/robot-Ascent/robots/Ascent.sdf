@@ -903,13 +903,11 @@
     <link name="DiffA">
       <gravity>1</gravity>
       <self_collide>0</self_collide>
-      <!--<pose>-.363 .015 .148 0 0 0</pose>-->
       <pose>0 .1 .048 0 0 0</pose>
     </link>
     <joint name="Frame-DiffA" type="revolute">
       <parent>Frame</parent>
       <child>DiffA</child>
-      <!--<pose>-.363 0.015 .148 0 0 0</pose>-->
       <pose>0 .1 .048 0 0 0</pose>
       <axis>
         <xyz>0 1 0</xyz>
@@ -919,18 +917,6 @@
         </dynamics>
       </axis>
     </joint>
-    <!--<joint name="RockerLeft-DiffA" type="revolute">
-      <parent>RockerLeft</parent>
-      <child>DiffA</child>
-      <pose>-.363 0.015 .148 0 0 0</pose>
-      <axis>
-        <xyz>1 0 0</xyz>
-        <dynamics>
-          <damping>0</damping>
-          <friction>0</friction>
-        </dynamics>
-      </axis>
-    </joint>-->
     <joint name="RockerLeft-DiffA_gearbox" type="gearbox">
       <parent>RockerLeft</parent>
       <child>DiffA</child>
@@ -943,35 +929,6 @@
         <xyz>0 1 0</xyz>
       </axis2>
     </joint>
-    <!--<link name="DiffB">
-      <gravity>1</gravity>
-      <self_collide>0</self_collide>
-      <pose>.363 .015 .148 0 0 0</pose>
-    </link>-->
-    <!--<joint name="Frame-DiffB" type="revolute">
-      <parent>Frame</parent>
-      <child>DiffB</child>
-      <pose>.363 .015 .148 0 0 0</pose>
-      <axis>
-        <xyz>1 0 0</xyz>
-        <dynamics>
-          <damping>0</damping>
-          <friction>0</friction>
-        </dynamics>
-      </axis>
-    </joint>-->
-    <!--<joint name="RockerRight-DiffB" type="revolute">
-      <parent>RockerRight</parent>
-      <child>DiffB</child>
-      <pose>.363 .015 .148 0 0 0</pose>
-      <axis>
-        <xyz>1 0 0</xyz>
-        <dynamics>
-          <damping>0</damping>
-          <friction>0</friction>
-        </dynamics>
-      </axis>
-    </joint>-->
     <joint name="RockerRight-DiffA_gearbox" type="gearbox">
       <parent>RockerRight</parent>
       <child>DiffA</child>
@@ -984,29 +941,5 @@
         <xyz>0 1 0</xyz>
       </axis2>
     </joint>
-    <!--<joint name="DiffA-DiffB" type="revolute">
-      <parent>DiffA</parent>
-      <child>DiffB</child>
-      <pose>.363 .015 .148 0 0 0</pose>
-      <axis>
-        <xyz>1 0 0</xyz>
-        <dynamics>
-          <damping>0</damping>
-          <friction>0</friction>
-        </dynamics>
-      </axis>
-    </joint>-->
-    <!--<joint name="DiffA-DiffB_gearbox2" type="gearbox">
-      <parent>DiffA</parent>
-      <child>DiffB</child>
-      <gearbox_ratio>1</gearbox_ratio>
-      <gearbox_reference_body>DiffA</gearbox_reference_body>
-      <axis>
-        <xyz>1 0 0</xyz>
-      </axis>
-      <axis2>
-        <xyz>1 0 0</xyz>
-      </axis2>
-    </joint>-->
   </model>
 </sdf>
