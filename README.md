@@ -23,4 +23,4 @@ make
 ```
 
 ## Running
-Currently all that is needed to run the simulation is to go into the robots model directory and run `launch` from the terminal.
+Currently all that is needed to run the simulation is to run `launch` in the top level from the terminal.
