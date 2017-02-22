@@ -20,10 +20,12 @@ typedef int  _socket_t;
 
 Socket::UdpSocket client_port(10000);
 Socket::UdpSocket lrf_port(20000);
+Socket::UdpSocekt imu_port(20001);
 Socket::UdpSocket gps_port(20002);
 
 uint8_t testing = 1; 
 int lrf_en = 1;
+int imu_en = 1; 
 int gps_en = 0;
 
 int lrf_count = 0;
@@ -121,7 +123,15 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
     //printf("Yaw is: %f\n", yaw);
 
 	char tmp = (char)yaw_degree;
-
+	
+	if(imu_en == 1)
+			{
+			if(!imu_port.Write(&tmp,1, (struct sockaddr*)&robot_addr))
+				{
+					fprintf(stderr, "Failed to send imu to listener!\n");
+					return;
+				}
+			}
 
 //    if(lrf_count == 300)
 	if(true)
@@ -250,4 +260,6 @@ private: event::ConnectionPtr updateConnection;
 
 // Register this plugin with the simulator
 GZ_REGISTER_MODEL_PLUGIN(InsomniaPlugin)
-} 
+}
+
+
