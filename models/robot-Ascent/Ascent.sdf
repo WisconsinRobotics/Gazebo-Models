@@ -32,7 +32,7 @@
         </geometry>
       </visual>
 	  <sensor name="laser" type="ray">
-      	<pose>0 .252 -.041 0 0 0</pose>
+      	<pose>0 .252 -.041 0 0 1.57</pose>
 		<ray>
 		  <scan>
 		  	<horizontal>

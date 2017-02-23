@@ -16,21 +16,19 @@
 #include "../utils/UdpSocket.hpp"
 
 
-typedef int  _socket_t;
+static Socket::UdpSocket client_port(10000);
+static Socket::UdpSocket lrf_port(20000);
+static Socket::UdpSocket imu_port(20001);
+static Socket::UdpSocket gps_port(20002);
 
-Socket::UdpSocket client_port(10000);
-Socket::UdpSocket lrf_port(20000);
-Socket::UdpSocket imu_port(20001);
-Socket::UdpSocket gps_port(20002);
+static uint8_t testing = 1; 
+static int lrf_en = 1;
+static int imu_en = 1; 
+static int gps_en = 0;
 
-uint8_t testing = 1; 
-int lrf_en = 1;
-int imu_en = 1; 
-int gps_en = 0;
+static int lrf_count = 0;
 
-int lrf_count = 0;
-
-struct sockaddr_in robot_addr;    
+static struct sockaddr_in robot_addr;    
 
 namespace gazebo
 {

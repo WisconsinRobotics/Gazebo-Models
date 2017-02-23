@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sdf version="1.4">
+  <world name="default">
+  	<physics type="ode">
+	  <max_step_size>.003</max_step_size>
+	  <real_time_factor>1</real_time_factor>
+	  <!--<real_time_update_rate>100</real_time_update_rate>-->
+	  <ode>
+		<solver>
+		  <type>quick</type>
+		  <iters>100</iters>
+		</solver>
+	  </ode>
+	</physics>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+<!--    <include>
+      <uri>model://robot-Insomnia</uri>
+      <pose>0 0 1 1.57 0 0</pose>
+    </include>-->
+    <include>
+      <uri>model://robot-Ascent</uri>
+      <pose>0 -0.5 0.7 0 0 1.57</pose>
+    </include>
+	<include>
+	  <uri>model://ai_test</uri>
+	  <pose>0 0 0.7 0 0 0</pose>
+	</include>
+    <model name="box">
+    <static>true</static>
+      <pose>0 0 0 0 0 0</pose>\
+      <link name ='box'>\
+        <pose>0 0 0 0 0 0</pose>\
+        <visual name ='visual'>\
+          <geometry>
+            <box><size>20 20 .5</size></box>
+          </geometry>
+        </visual>\
+        <collision name ='visual'>\
+          <geometry>
+            <box><size>20 20 .5</size></box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.2</mu>
+                <mu2>0.2</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>\
+      </link>
+    </model>
+  </world>
+</sdf>

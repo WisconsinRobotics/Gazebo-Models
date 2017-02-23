@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <sdf version='1.6'>
-  <model name='box'>
+  <model name='ai_test'>
     <link name='link_0'>
       <pose frame=''>-4.0317 0.631579 0 0 -0 0</pose>
       <inertial>

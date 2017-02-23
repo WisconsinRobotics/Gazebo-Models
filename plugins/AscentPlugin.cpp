@@ -9,23 +9,28 @@
 #include <gazebo/sensors/RaySensor.hh>
 #include <gazebo/sensors/CameraSensor.hh>
 #include <gazebo/sensors/SensorManager.hh>
-#include <stdio.h>
 #include <gazebo/sensors/sensors.hh>
+#include <stdio.h>
 #include <vector>
 #include <math.h>
+#include <Packet.h>
+#include <BclStatus.h>
+#include <MechanicalControlPackets.h>
+#include <SensorControlPackets.h>
 #include "../utils/UdpSocket.hpp"
 
-Socket::UdpSocket client_port(10000);
-Socket::UdpSocket lrf_port(20000);
-Socket::UdpSocket gps_port(20002);
+static Socket::UdpSocket client_port(10000);
+static Socket::UdpSocket lrf_port(20000);
+static Socket::UdpSocket gps_port(20001);
+static Socket::UdpSocket imu_port(20002);
 
-int testing = 1; 
+static int testing = 0; 
 
-int lrf_en = 0;
-int gps_en = 0;
-int imu_en = 0;
+static int lrf_en = 1;
+static int gps_en = 0;
+static int imu_en = 0;
 
-struct sockaddr_in robot_addr;    
+static struct sockaddr_in robot_addr;    
 
 namespace gazebo
 {
@@ -77,10 +82,26 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
         	std::cout << "Failed to open lrf_port!" << std::endl;
    		 }
 	}
+	
+	if(gps_en == 1)
+	{
+		if(!gps_port.Open())
+    	{
+        	std::cout << "Failed to open gps_port!" << std::endl;
+   		 }
+	}
+	
+	if(imu_en == 1)
+	{
+		if(!imu_port.Open())
+    	{
+        	std::cout << "Failed to open imu_port!" << std::endl;
+   		 }
+	}
 
 	// setup outgoing udp address
     memset(&robot_addr, 0, sizeof(struct sockaddr_in));    
-    inet_pton(AF_INET, "192.168.1.21", &(robot_addr.sin_addr));    
+    inet_pton(AF_INET, "192.168.1.144", &(robot_addr.sin_addr));    
     robot_addr.sin_family = AF_INET;    
     robot_addr.sin_port = htons(20001); 		
 		
@@ -93,17 +114,27 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 // Called by the world update start event
 public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-    uint8_t buffer[256];
-	memset(buffer, 0, 256);
-    int rd = 0;
+	BCL_STATUS status;
+    uint8_t buffer[255];
+	uint8_t bytes_written;
+
+	memset(buffer, 0, 255);
+
+	BclPacket tank_drive_pkt;
+	TankDrivePayload tank_drive_payload;
+
 
     if(!testing)
     {
 		// drive command
-        rd = client_port.Read(&buffer[0], 256, nullptr);
-		printf("rd = %d\n", rd);
-        //if (rd != 12)
-	    //	return;
+		InitializeSetTankDriveSpeedPacket(&tank_drive_pkt, &tank_drive_payload);
+        client_port.Read(&buffer[0], 255, nullptr);
+		status = DeserializeBclPacket(&tank_drive_pkt, buffer, 255);
+		if(status != BCL_OK)
+		{
+			fprintf(stderr, "Failed to deserialize Tank Drive!\n");
+			return;
+		}
     }
     else
     {
@@ -141,6 +172,10 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 			payload[m++] = (uint8_t)tmp;
 		}
 
+		printf("lrf at 0 = %f\n", lrfData.at(0));
+
+
+
 		if(!lrf_port.Write(&payload[0], len, (struct sockaddr*)&robot_addr))
 		{
 			fprintf(stderr, "Failed to send lrf to listener!\n");
@@ -150,21 +185,40 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 	if(gps_en == 1)
 	{
+		BclPacket gps_pkt;
+		GpsPayload gps_payload;
+
+		InitializeReportGPSPacket(&gps_pkt, &gps_payload);
+
 		double latitude_dec = this->gps->Latitude().Degree();
 		double longitude_dec = this->gps->Longitude().Degree();
 
-		uint8_t latitude_deg = (uint8_t)floor(latitude_dec);
-		uint8_t latitude_min = (uint8_t)((latitude_dec - floor(latitude_dec)) * 60.0);
-		uint8_t latitude_sec = (uint8_t)((latitude_min - floor(latitude_min)) * 60.0);
+		uint16_t latitude_deg = (uint16_t)floor(latitude_dec);
+		uint16_t latitude_min = (uint16_t)((latitude_dec - floor(latitude_dec)) * 60.0);
+		uint16_t latitude_sec = (uint16_t)((latitude_min - floor(latitude_min)) * 60.0);
  
-		uint8_t longitude_deg = (uint8_t)(floor(longitude_dec));
-		uint8_t longitude_min = (uint8_t)((longitude_dec - floor(longitude_dec)) * 60.0);
-		uint8_t longitude_sec = (uint8_t)((longitude_min - floor(longitude_min)) * 60.0);
-  
-		uint8_t gpspayload[6] = { latitude_deg, latitude_min, latitude_deg,
-		                       	  longitude_deg, longitude_deg, longitude_deg };
+		uint16_t longitude_deg = (uint16_t)(floor(longitude_dec));
+		uint16_t longitude_min = (uint16_t)((longitude_dec - floor(longitude_dec)) * 60.0);
+		uint16_t longitude_sec = (uint16_t)((longitude_min - floor(longitude_min)) * 60.0);
 
-		if(!gps_port.Write(&gpspayload[0], sizeof(gpspayload), nullptr))
+		gps_payload.lat_degrees = latitude_deg;
+		gps_payload.lat_minutes = latitude_min;
+		gps_payload.lat_seconds = latitude_sec;
+  
+		gps_payload.long_degrees = longitude_deg;
+		gps_payload.long_minutes = longitude_min;
+		gps_payload.long_seconds = longitude_sec;
+
+		memset(buffer, 0, 255);
+		status = SerializeBclPacket(&gps_pkt, buffer, 255, &bytes_written);
+
+		if(status != BCL_OK)
+		{
+			fprintf(stderr, "Failed to serialize gps packet!\n");
+			return;
+		}
+
+		if(!gps_port.Write(&buffer[0], bytes_written, nullptr))
 		{
 			fprintf(stderr, "Failed to send gps to listener!\n");
 			return;
@@ -172,21 +226,43 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	}
 
 	if(imu_en == 1)
-	{
+	{	
+		BclPacket imu_pkt;
+		ImuPayload imu_payload;
+
+		InitializeReportIMUPacket(&imu_pkt, &imu_payload);
+
 		math::Quaternion orientation = this->imu->Orientation();
 
-		double yaw = orientation.GetYaw();
-		double yaw_degree = yaw * 180 / M_PI;  
+		double yaw_rad = orientation.GetYaw();
+		double yaw_degree = yaw_rad * 180 / M_PI;  
 
-		uint8_t tmp = (uint8_t)yaw_degree;
+		uint16_t z_orient = (uint16_t)yaw_degree;
+
+		imu_payload.z_orient = z_orient;
+
+		memset(buffer, 0, 255);
+		status = SerializeBclPacket(&imu_pkt, buffer, 255, &bytes_written);
+
+		if(status != BCL_OK)
+		{
+			fprintf(stderr, "Failed to serialize imu packet!\n");
+			return;
+		}
+
+		if(!imu_port.Write(&buffer[0], bytes_written, nullptr))
+		{
+			fprintf(stderr, "Failed to send imu to listener!\n");
+			return;
+		}
 	}
 }
 
 private: void Drive(uint8_t* buffer)
 {
 	// wheels
-    int lfWheels = (int)((int8_t)buffer[0]);
-    int rtWheels = (-1*(int)((int8_t)buffer[1]));
+    int lfWheels = (-1 * (int)((int8_t)buffer[0]));
+    int rtWheels = (int)((int8_t)buffer[1]);
 	//printf("lfWlVel = %d | rtWlVel = %d\n",lfWlVel,rtWlVel);
 
 	// arm
