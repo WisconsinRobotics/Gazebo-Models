@@ -12,6 +12,9 @@ At the making of this document Gazebo 7 was the lastest verison released, your e
 sudo apt-cache search gazebo
 ```
 
+## Dependecnies
+Currently our robot models require BadgerCommandLibrary (BCL) for sending and recieving packets so you must the BCL repo in your top level of Gazebo-Models.
+
 ## Building
 Gazebo is only supported on Ubuntu Linux. To build:
 
