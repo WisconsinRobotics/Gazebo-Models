@@ -20,7 +20,7 @@ typedef int  _socket_t;
 
 Socket::UdpSocket client_port(10000);
 Socket::UdpSocket lrf_port(20000);
-Socket::UdpSocekt imu_port(20001);
+Socket::UdpSocket imu_port(20001);
 Socket::UdpSocket gps_port(20002);
 
 uint8_t testing = 1; 
