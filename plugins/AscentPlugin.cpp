@@ -156,6 +156,9 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	   	if(lrfData.size() == 0)
     	   	return;
 
+		// LRF data is flipped, so reverse the array
+		std::reverse(std::begin(lrfData), std::end(lrfData));
+
 		int len = lrfData.size()*2;
 
 		uint8_t payload[len];
@@ -263,7 +266,7 @@ private: void Drive(uint8_t* buffer)
 	// wheels
     int lfWheels = (-1 * (int)((int8_t)buffer[0]));
     int rtWheels = (int)((int8_t)buffer[1]);
-	//printf("lfWlVel = %d | rtWlVel = %d\n",lfWlVel,rtWlVel);
+	//printf("lfWheels = %d | rtWheels = %d\n", lfWheels, rtWheels);
 
 	// arm
     int turntable = 0;
