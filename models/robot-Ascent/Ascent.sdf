@@ -280,6 +280,16 @@
             <length>.1905</length>
           </cylinder>
         </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
     </link>
     <joint name="Wheel2" type="revolute">
@@ -287,7 +297,7 @@
       <child>Wheel2</child>
       <pose>0 0 0 0 0 0</pose>
       <axis>
-        <xyz>1 0 0</xyz>
+        <xyz>-1 0 0</xyz>
         <dynamics>
           <damping>0</damping>
           <friction>0</friction>
@@ -371,6 +381,16 @@
             <length>.1905</length>
           </cylinder>
         </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
     </link>
     <joint name="Wheel5" type="revolute">
@@ -558,6 +578,16 @@
             <length>.1905</length>
           </cylinder>
         </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
     </link>
     <joint name="Wheel0" type="revolute">
@@ -565,7 +595,7 @@
       <child>Wheel0</child>
       <pose>0 0 0 0 0 0</pose>
       <axis>
-        <xyz>1 0 0 </xyz>
+        <xyz>-1 0 0 </xyz>
         <dynamics>
           <damping>0</damping>
           <friction>0</friction>
@@ -608,6 +638,16 @@
             <length>.1905</length>
           </cylinder>
         </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
     </link>
     <joint name="Wheel1" type="revolute">
@@ -615,7 +655,7 @@
       <child>Wheel1</child>
       <pose>0 0 0 0 0 0</pose>
       <axis>
-        <xyz>1 0 0</xyz>
+        <xyz>-1 0 0</xyz>
         <dynamics>
           <damping>0</damping>
           <friction>0</friction>
@@ -658,6 +698,16 @@
             <length>.1905</length>
           </cylinder>
         </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
     </link>
     <joint name="Wheel3" type="revolute">
@@ -708,6 +758,16 @@
             <length>.1905</length>
           </cylinder>
         </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
     </link>
     <joint name="Wheel4" type="revolute">
