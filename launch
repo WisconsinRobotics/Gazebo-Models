@@ -7,5 +7,5 @@ export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:$PWD/models
 export GAZEBO_RESOURCE_PATH=${GAZEBO_RESOURCE_PATH}:$PWD
 
 #gzserver Worlds/MarsTerrain.world --verbose
-gazebo -u worlds/ai_testing.world --verbose
+gazebo -u worlds/video_scene.world --verbose
 

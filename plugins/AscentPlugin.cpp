@@ -18,15 +18,18 @@
 #include <MechanicalControlPackets.h>
 #include <SensorControlPackets.h>
 #include "../utils/UdpSocket.hpp"
+#include <calculateAngles.h>
 
 static Socket::UdpSocket client_port(10000);
 static Socket::UdpSocket lrf_port(20000);
 static Socket::UdpSocket gps_port(20001);
 static Socket::UdpSocket imu_port(20002);
 
-static int testing = 0; 
+// only ever have one or no test flag set at a time
+static int testing = 0;
+static int testing_ik = 1;
 
-static int lrf_en = 1;
+static int lrf_en = 0;
 static int gps_en = 0;
 static int imu_en = 0;
 
@@ -116,6 +119,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
 	BCL_STATUS status;
     uint8_t buffer[255];
+	int ik_buf[3];
 	uint8_t bytes_written;
 
 	memset(buffer, 0, 255);
@@ -124,29 +128,46 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	TankDrivePayload tank_drive_payload;
 
 
-    if(!testing)
+    if(testing)
+    {	
+		// fake drive command
+        for(int k = 0; k < 12; k++)
+        {
+        	buffer[k] = 0x5;
+        }
+
+    }
+	else if(testing_ik)
+	{
+		int x = 10;
+		int y = 10;
+		int z = 10;
+/*
+		if(!calculateAngles(ik_buf, x, y, z)
+		{
+			fprintf(stderr, "Can't get there!!\n");
+		}
+*/		
+	}
+    else
     {
 		// drive command
 		InitializeSetTankDriveSpeedPacket(&tank_drive_pkt, &tank_drive_payload);
         client_port.Read(&buffer[0], 255, nullptr);
-		status = DeserializeBclPacket(&tank_drive_pkt, buffer, 255);
-		if(status != BCL_OK)
-		{
-			fprintf(stderr, "Failed to deserialize Tank Drive!\n");
-			return;
-		}
-    }
-    else
-    {
-		// fake drive command
-        for(int k = 0; k < 12; k++)
-        {
-        	buffer[k] = 0xA;
-        }
+		//status = DeserializeBclPacket(&tank_drive_pkt, buffer, 255);
+		//if(status != BCL_OK)
+		//{
+		//	fprintf(stderr, "Failed to deserialize Tank Drive!\n");
+		//	return;
+		//}
+
     }
 
 	// move robot
-    Drive(buffer);
+	if(testing_ik)
+		Drive_ik(ik_buf);
+	else
+   	 	Drive(buffer);
 
 	if(lrf_en == 1)
 	{
@@ -261,6 +282,56 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	}
 }
 
+private: void Drive_ik(int* ik_buf)
+{
+
+	int lfWheels = 0;
+	int rtWheels = 0;
+
+	// arm
+    int turntable = 0;
+    int shoulder = 0;
+    int elbow = 0;
+    int wristPitch = 0;
+    int wristRot = 0;
+    int jaw = 0;
+
+    this->model->GetJoint("Wheel0")->SetVelocity(0,lfWheels);	//positive = forward
+    this->model->GetJoint("Wheel1")->SetVelocity(0,lfWheels);	
+    this->model->GetJoint("Wheel2")->SetVelocity(0,lfWheels);	
+    this->model->GetJoint("Wheel3")->SetVelocity(0,rtWheels);	//negative = forward
+    this->model->GetJoint("Wheel4")->SetVelocity(0,rtWheels);	
+    this->model->GetJoint("Wheel5")->SetVelocity(0,rtWheels);	
+
+	// buffer[0] = turntable
+	// buffer[1] = elbow
+	// buffer[2] = shoulder
+		
+	ik_buf[0] = ik_buf[0] * M_PI / 180;
+	ik_buf[1] = ik_buf[1] * M_PI / 180;
+	ik_buf[2] = ik_buf[2] * M_PI / 180;
+
+	math::Angle tt((double)ik_buf[0]);
+	math::Angle shld((double)ik_buf[2]);
+	math::Angle elb((double)ik_buf[1]);
+
+	//negative = clockwise
+    //this->model->GetJoint("Turntable")->SetAngle(0, tt);
+	this->model->GetJoint("Turntable")->SetPosition(0, 0.2);
+
+	//positive = up
+	//this->model->GetJoint("Shoulder")->SetAngle(0, shld);
+
+	//positive = up
+    //this->model->GetJoint("Elbow")->SetAngle(0, elb);
+
+	this->model->GetJoint("WristPitch")->SetVelocity(0,wristPitch); //positive = up
+	this->model->GetJoint("WristRot")->SetVelocity(0,wristRot);     //negative = clockwise
+	this->model->GetJoint("Jaw0")->SetVelocity(0,jaw);       		//positive = closed
+	this->model->GetJoint("Jaw1")->SetVelocity(0,jaw);       		//positive = closed
+	
+}
+
 private: void Drive(uint8_t* buffer)
 {
 	// wheels
@@ -283,9 +354,9 @@ private: void Drive(uint8_t* buffer)
     this->model->GetJoint("Wheel4")->SetVelocity(0,rtWheels);	
     this->model->GetJoint("Wheel5")->SetVelocity(0,rtWheels);	
 
-    this->model->GetJoint("Turntable")->SetVelocity(0,turntable);  	//negative = clockwise
+	this->model->GetJoint("Turntable")->SetVelocity(0,turntable);  	//negative = clockwise
     this->model->GetJoint("Shoulder")->SetVelocity(0,shoulder); 	//positive = up
-    this->model->GetJoint("Elbow")->SetVelocity(0,elbow);  			//positive = up
+   	this->model->GetJoint("Elbow")->SetVelocity(0,elbow);  			//positive = up
     this->model->GetJoint("WristPitch")->SetVelocity(0,wristPitch); //positive = up
 	this->model->GetJoint("WristRot")->SetVelocity(0,wristRot);     //negative = clockwise
     this->model->GetJoint("Jaw0")->SetVelocity(0,jaw);       		//positive = closed
