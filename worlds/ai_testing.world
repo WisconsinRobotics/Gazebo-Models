@@ -34,7 +34,7 @@
 
 <model name="camGround">
      <pose>0 0 0 0 0 0</pose> 
-	<static>true<static/>    
+	<static>true</static>    
 	 <link name="camGround">
        <!--<visual name ='visual'>\
          <geometry>
