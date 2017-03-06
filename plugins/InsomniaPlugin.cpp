@@ -14,7 +14,10 @@
 #include <vector>
 #include <math.h>
 #include "../utils/UdpSocket.hpp"
-
+#include <Packet.h>
+#include <BclStatus.h>
+#include <MechanicalControlPackets.h>
+#include <SensorControlPackets.h>
 
 static Socket::UdpSocket client_port(10000);
 static Socket::UdpSocket lrf_port(20000);
@@ -22,8 +25,8 @@ static Socket::UdpSocket imu_port(20001);
 static Socket::UdpSocket gps_port(20002);
 
 static uint8_t testing = 1; 
-static int lrf_en = 1;
-static int imu_en = 1; 
+static int lrf_en = 0;
+static int imu_en = 0; 
 static int gps_en = 0;
 
 static int lrf_count = 0;
@@ -92,17 +95,16 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
 
 	BCL_STATUS status;
-    uint8_t buffer[256];
-	memset(buffer, 0, 256);
+    uint8_t buffer[255];
+	memset(buffer, 0, 255);
     int rd = 0;
 	uint8_t bytes_written;
 
 
     if(!testing)
     {
-		
 		// drive command
-        rd = client_port.Read(&buffer[0], 256, nullptr);
+        rd = client_port.Read(&buffer[0], 255, nullptr);
 		printf("rd = %d\n", rd);
         //if (rd != 12)
 	    //	return;
@@ -112,109 +114,76 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		// fake drive command
         for(int k = 0; k < 12; k++)
         {
-
         	buffer[k] = 0xA;
         }
     }
 
 	// move robot
     Drive(buffer);
-
 		
 	if(imu_en == 1)
 	{
 
-			BclPacket imu_pkt;
-			ImuPayload imu_payload;
+		BclPacket imu_pkt;
+		ImuPayload imu_payload;
 
-			InitializeReportIMUPacket(&imu_pkt, &imu_payload);
+		InitializeReportIMUPacket(&imu_pkt, &imu_payload);
 
+		math::Quaternion orientation = this->imu->Orientation();
 
-			math::Quaternion orientation = this->imu->Orientation();
+		double yaw = orientation.GetYaw();
+		double yaw_degree = yaw * 180 / M_PI;  
+	    //printf("Yaw is: %f\n", yaw);
 
-			double yaw = orientation.GetYaw();
-			double yaw_degree = yaw * 180 / M_PI;  
-			    //printf("Yaw is: %f\n", yaw);
+		uint8_t tmp = (uint8_t)yaw_degree;
 
-			uint8_t tmp = (uint8_t)yaw_degree;
+		memset(buffer, 0, 255);
+		status = SerializeBclPacket(&imu_pkt, buffer, 255, &bytes_written);
 
-
-			memset(buffer, 0, 256);
-			status = SerializeBlPacket(&imu_pkt, buffer, 256, &bytes_written);
-
-			if(status != BCL_OK)
-			{
-				fprintf(stderr, "Failed to serialize imu packet!\n");
+		if(status != BCL_OK)
+		{
+			fprintf(stderr, "Failed to serialize imu packet!\n");
+			return;
+		}
+			
+		if(!imu_port.Write(&tmp, 1 , (struct sockaddr*)&robot_addr))
+		{
+				fprintf(stderr, "Failed to send imu to listener!\n");
 				return;
-			}
-			
-			
-			if(!imu_port.Write(&tmp, 1 , (struct sockaddr*)&robot_addr))
-				{
-					fprintf(stderr, "Failed to send imu to listener!\n");
-					return;
-				}
-			}
+		}
+	}
 
-//    if(lrf_count == 300)
+	if(lrf_en == 1)
+	{ 
 		std::vector<double> lrfData;
-    	this->lrf->Ranges(lrfData);
+		this->lrf->Ranges(lrfData);
 
-    	if(lrfData.size() == 0)
-        	return;
+		if(lrfData.size() == 0)
+		    return;
 
 		int len = lrfData.size()*2;
-
 		uint8_t payload[len];
-
-
+						
 		int m = 0;
 		for(int l = 0; l < lrfData.size(); l++)
 		{
 			lrfData.at(l) = lrfData.at(l) * 1000;
-			float f = (float)lrfData.at(l);
-		
+		    float f = (float)lrfData.at(l);
 			uint32_t uint = (uint32_t)(*(uint32_t*)&f);
 			uint16_t tmp = (uint16_t)lrfData.at(l);
-			payload[m++] = (uint8_t)(tmp >> 8);
-			payload[m++] = (uint8_t)tmp;
-		}
-
-		if(lrf_en == 1)
-		{ 
-			std::vector<double> lrfData;
-			this->lrf->Ranges(lrfData);
-
-			if(lrfData.size() == 0)
-		    return;
-
-			int len = lrfData.size()*2;
-			uint8_t payload[len];
-				
-				
-			int m = 0;
-			for(int l = 0; l < lrfData.size(); l++)
-			{
-																									      lrfData.at(l) = lrfData.at(l) * 1000;
-			    float f = (float)lrfData.at(l);
-				uint32_t uint = (uint32_t)(*(uint32_t*)&f);
-				uint16_t tmp = (uint16_t)lrfData.at(l);
-				payload[m++] = (char)(tmp >> 8);
-			 	payload[m++] = (char)tmp;
-																										}
-																												
-																									 if(!lrf_port.Write(&payload[0], len, (struct sockaddr*)&robot_addr))
-			{
-				fprintf(stderr, "Failed to send lrf to listener!\n");
-				return;
-			}
-		}
-
-
-
-   		if(gps_en == 1)
+			payload[m++] = (char)(tmp >> 8);
+		 	payload[m++] = (char)tmp;
+		}	
+		if(!lrf_port.Write(&payload[0], len, (struct sockaddr*)&robot_addr))
 		{
-		
+			fprintf(stderr, "Failed to send lrf to listener!\n");
+			return;
+		}
+	}
+
+
+   	if(gps_en == 1)
+	{	
 		BclPacket gps_pkt;
 		GpsPayload gps_payload;
 
@@ -240,8 +209,8 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		gps_payload.long_seconds = longitude_sec;
 
 
-		memset(buffer, 0, 256);
-		status = SerializeBclPacket(&gps_pkt, buffer, 256, &bytes_written);
+		memset(buffer, 0, 255);
+		status = SerializeBclPacket(&gps_pkt, buffer, 255, &bytes_written);
 
 		if (status != BCL_OK)
 		{
@@ -249,26 +218,12 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 			return;
 		}
 
-	
 		if(!gps_port.Write(&buffer[0], bytes_written, nullptr))
-			{
+		{
 				fprintf(stderr, "Failed to send gps to listener!\n");
 				return;
-			}
 		}
-
-    	lrf_count = 0;
-    //for(int i = 0; i < lrfData.size(); i += 20)
-    //{
-    //    for(int j = 0; j < 5; j++)
-    //        std::cout << lrfData.at(i+j) << " | ";
-    //    std::cout << std::endl;
-    //}
-    //std::cout << std::endl << std::endl;
-    }
-
-
-    //lrf_count++;
+	}
 }
 
 private: void Drive(uint8_t *buffer)
