@@ -56,6 +56,7 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 		return;
 	}
 
+
 	if ((this->imu = std::dynamic_pointer_cast<gazebo::sensors::ImuSensor>(
 		 gazebo::sensors::SensorManager::Instance()->GetSensor("imu"))) == NULL)
 	{
@@ -89,9 +90,13 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 // Called by the world update start event
 public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
+
+	BCL_STATUS status;
     uint8_t buffer[256];
 	memset(buffer, 0, 256);
     int rd = 0;
+	uint8_t bytes_written;
+
 
     if(!testing)
     {
@@ -107,6 +112,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		// fake drive command
         for(int k = 0; k < 12; k++)
         {
+
         	buffer[k] = 0xA;
         }
     }
@@ -114,17 +120,36 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	// move robot
     Drive(buffer);
 
-	math::Quaternion orientation = this->imu->Orientation();
-
-	double yaw = orientation.GetYaw();
-	double yaw_degree = yaw * 180 / M_PI;  
-    //printf("Yaw is: %f\n", yaw);
-
-	char tmp = (char)yaw_degree;
-	
+		
 	if(imu_en == 1)
+	{
+
+			BclPacket imu_pkt;
+			ImuPayload imu_payload;
+
+			InitializeReportIMUPacket(&imu_pkt, &imu_payload);
+
+
+			math::Quaternion orientation = this->imu->Orientation();
+
+			double yaw = orientation.GetYaw();
+			double yaw_degree = yaw * 180 / M_PI;  
+			    //printf("Yaw is: %f\n", yaw);
+
+			uint8_t tmp = (uint8_t)yaw_degree;
+
+
+			memset(buffer, 0, 256);
+			status = SerializeBlPacket(&imu_pkt, buffer, 256, &bytes_written);
+
+			if(status != BCL_OK)
 			{
-			if(!imu_port.Write(&tmp,1, (struct sockaddr*)&robot_addr))
+				fprintf(stderr, "Failed to serialize imu packet!\n");
+				return;
+			}
+			
+			
+			if(!imu_port.Write(&tmp, 1 , (struct sockaddr*)&robot_addr))
 				{
 					fprintf(stderr, "Failed to send imu to listener!\n");
 					return;
@@ -132,9 +157,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 			}
 
 //    if(lrf_count == 300)
-	if(true)
-	{
-    	std::vector<double> lrfData;
+		std::vector<double> lrfData;
     	this->lrf->Ranges(lrfData);
 
     	if(lrfData.size() == 0)
@@ -142,7 +165,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		int len = lrfData.size()*2;
 
-		char payload[len];
+		uint8_t payload[len];
 
 
 		int m = 0;
@@ -150,38 +173,84 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		{
 			lrfData.at(l) = lrfData.at(l) * 1000;
 			float f = (float)lrfData.at(l);
+		
 			uint32_t uint = (uint32_t)(*(uint32_t*)&f);
 			uint16_t tmp = (uint16_t)lrfData.at(l);
-			payload[m++] = (char)(tmp >> 8);
-			payload[m++] = (char)tmp;
+			payload[m++] = (uint8_t)(tmp >> 8);
+			payload[m++] = (uint8_t)tmp;
 		}
 
 		if(lrf_en == 1)
-		{
-			if(!lrf_port.Write(&payload[0], len, (struct sockaddr*)&robot_addr))
+		{ 
+			std::vector<double> lrfData;
+			this->lrf->Ranges(lrfData);
+
+			if(lrfData.size() == 0)
+		    return;
+
+			int len = lrfData.size()*2;
+			uint8_t payload[len];
+				
+				
+			int m = 0;
+			for(int l = 0; l < lrfData.size(); l++)
+			{
+																									      lrfData.at(l) = lrfData.at(l) * 1000;
+			    float f = (float)lrfData.at(l);
+				uint32_t uint = (uint32_t)(*(uint32_t*)&f);
+				uint16_t tmp = (uint16_t)lrfData.at(l);
+				payload[m++] = (char)(tmp >> 8);
+			 	payload[m++] = (char)tmp;
+																										}
+																												
+																									 if(!lrf_port.Write(&payload[0], len, (struct sockaddr*)&robot_addr))
 			{
 				fprintf(stderr, "Failed to send lrf to listener!\n");
 				return;
 			}
 		}
 
-		double latitude_dec = this->gps->Latitude().Degree();
-		double longitude_dec = this->gps->Longitude().Degree();
 
-		char latitude_deg = (char)floor(latitude_dec);
-		char latitude_min = (char)((latitude_dec - floor(latitude_dec)) * 60.0);
-		char latitude_sec = (char)((latitude_min - floor(latitude_min)) * 60.0);
- 
-		char longitude_deg = (char)(floor(longitude_dec));
-		char longitude_min = (char)((longitude_dec - floor(longitude_dec)) * 60.0);
-		char longitude_sec = (char)((longitude_min - floor(longitude_min)) * 60.0);
-   
-		char gpspayload[6] = { latitude_deg, latitude_min, latitude_deg,
-		                       longitude_deg, longitude_deg, longitude_deg };
 
    		if(gps_en == 1)
 		{
-			if(!gps_port.Write(&gpspayload[0], sizeof(gpspayload), nullptr))
+		
+		BclPacket gps_pkt;
+		GpsPayload gps_payload;
+
+		InitializeReportGPSPacket(&gps_pkt, &gps_payload);
+
+		double latitude_dec = this->gps->Latitude().Degree();
+		double longitude_dec = this->gps->Longitude().Degree();
+
+		uint8_t latitude_deg = (uint8_t)floor(latitude_dec);
+		uint8_t latitude_min = (uint8_t)((latitude_dec - floor(latitude_dec)) * 60.0);
+		uint8_t latitude_sec = (uint8_t)((latitude_min - floor(latitude_min)) * 60.0);
+
+		uint8_t longitude_deg = (uint8_t)(floor(longitude_dec));
+		uint8_t longitude_min = (uint8_t)((longitude_dec- floor(longitude_dec)) * 60.0);
+		uint8_t longitude_sec = (uint8_t)((longitude_min - floor(longitude_min)) * 60.0);
+
+		gps_payload.lat_degrees = latitude_deg;
+		gps_payload.lat_minutes = latitude_min;
+		gps_payload.lat_seconds = latitude_sec;
+
+		gps_payload.long_degrees = longitude_deg;
+		gps_payload.long_minutes = longitude_min;
+		gps_payload.long_seconds = longitude_sec;
+
+
+		memset(buffer, 0, 256);
+		status = SerializeBclPacket(&gps_pkt, buffer, 256, &bytes_written);
+
+		if (status != BCL_OK)
+		{
+			fprintf(stderr, "Failed to serialize gps packet!\n");
+			return;
+		}
+
+	
+		if(!gps_port.Write(&buffer[0], bytes_written, nullptr))
 			{
 				fprintf(stderr, "Failed to send gps to listener!\n");
 				return;
