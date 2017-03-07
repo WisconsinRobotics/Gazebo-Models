@@ -21,6 +21,8 @@
 #include "../utils/UdpSocket.hpp"
 #include <calculateAngles.h>
 
+static const char* IP_ENDPOINT = "192.168.1.184";
+
 static Socket::UdpSocket client_port(10000);
 static Socket::UdpSocket lrf_port(20000);
 static Socket::UdpSocket gps_port(20001);
@@ -112,17 +114,16 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 
 	// setup outgoing udp address
     memset(&lrf_addr, 0, sizeof(struct sockaddr_in));    
-    inet_pton(AF_INET, "192.168.1.194", &(lrf_addr.sin_addr));    
+    inet_pton(AF_INET, IP_ENDPOINT, &(lrf_addr.sin_addr));    
     lrf_addr.sin_family = AF_INET;    
-    lrf_addr.sin_port = htons(20001); 		
-/*	
+    lrf_addr.sin_port = htons(20001); 	
+
 	memset(&sensors_addr, 0, sizeof(struct sockaddr_in));    
-    inet_pton(AF_INET, "192.168.1.194", &(sensors_addr.sin_addr));    
+    inet_pton(AF_INET, IP_ENDPOINT, &(sensors_addr.sin_addr));    
     sensors_addr.sin_family = AF_INET;    
     sensors_addr.sin_port = htons(15000); 		
-*/	
-
-    // Listen to the update event. This event is broadcast every
+    
+	// Listen to the update event. This event is broadcast every
     // simulation iteration.
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(
 			boost::bind(&AscentPlugin::OnUpdate, this, _1));
