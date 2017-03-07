@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <vector>
 #include <math.h>
+#include <crc8.h>
 #include <Packet.h>
 #include <BclStatus.h>
 #include <MechanicalControlPackets.h>
@@ -27,18 +28,24 @@ static Socket::UdpSocket imu_port(20002);
 
 // only ever have one or no test flag set at a time
 static int testing = 1;
-static int testing_ik = 0;
 
 // enable flags for sensors
 static int lrf_en = 0;
-static int gps_en = 0;
+static int gps_en = 1;
 static int imu_en = 0;
 
-static struct sockaddr_in robot_addr;    
+// debug flags
+static uint8_t lrf_debug = 0;
+static uint8_t imu_debug = 0;
+static uint8_t gps_debug = 1;
+static uint8_t drive_cmd_debug = 0;
+
+// sensor endpoint addresses
+static struct sockaddr_in lrf_addr;   
+static struct sockaddr_in sensors_addr;
 
 namespace gazebo
 {
-
 
 class AscentPlugin : public ModelPlugin
 {
@@ -71,7 +78,7 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 	}
 		
 	// Open Udp ports 
-	if(testing == 0)
+	if(!testing)
 	{
     	if(!client_port.Open())
     	{
@@ -79,7 +86,7 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     	}
 	}
 	
-	if(lrf_en == 1)
+	if(lrf_en)
 	{
 		if(!lrf_port.Open())
     	{
@@ -87,7 +94,7 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
    		 }
 	}
 	
-	if(gps_en == 1)
+	if(gps_en)
 	{
 		if(!gps_port.Open())
     	{
@@ -95,7 +102,7 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
    		 }
 	}
 	
-	if(imu_en == 1)
+	if(imu_en)
 	{
 		if(!imu_port.Open())
     	{
@@ -104,11 +111,17 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 	}
 
 	// setup outgoing udp address
-    memset(&robot_addr, 0, sizeof(struct sockaddr_in));    
-    inet_pton(AF_INET, "192.168.1.194", &(robot_addr.sin_addr));    
-    robot_addr.sin_family = AF_INET;    
-    robot_addr.sin_port = htons(20001); 		
-		
+    memset(&lrf_addr, 0, sizeof(struct sockaddr_in));    
+    inet_pton(AF_INET, "192.168.1.194", &(lrf_addr.sin_addr));    
+    lrf_addr.sin_family = AF_INET;    
+    lrf_addr.sin_port = htons(20001); 		
+/*	
+	memset(&sensors_addr, 0, sizeof(struct sockaddr_in));    
+    inet_pton(AF_INET, "192.168.1.194", &(sensors_addr.sin_addr));    
+    sensors_addr.sin_family = AF_INET;    
+    sensors_addr.sin_port = htons(15000); 		
+*/	
+
     // Listen to the update event. This event is broadcast every
     // simulation iteration.
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(
@@ -121,7 +134,6 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
 	BCL_STATUS status;
     uint8_t buffer[255];
-	int ik_buf[3];
 	uint8_t bytes_written;
 
 	memset(buffer, 0, 255);
@@ -129,27 +141,12 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	BclPacket tank_drive_pkt;
 	TankDrivePayload tank_drive_payload;
 
-
     if(testing)
     {	
 		// fake drive command
-        for(int k = 0; k < 12; k++)
-        {
-        	buffer[k] = (uint8_t)50;
-        }
+		tank_drive_payload.left = 50;
+		tank_drive_payload.right = 50;
     }
-	else if(testing_ik)
-	{
-		int x = 10;
-		int y = 10;
-		int z = 10;
-/*
-		if(!calculateAngles(ik_buf, x, y, z)
-		{
-			fprintf(stderr, "Can't get there!!\n");
-		}
-*/		
-	}
     else
     {
 		// drive command
@@ -165,12 +162,9 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
     }
 
 	// move robot
-	if(testing_ik)
-		Drive_ik(ik_buf);
-	else
-   	 	Drive(buffer);
+   	Drive(tank_drive_payload);
 
-	if(lrf_en == 1)
+	if(lrf_en)
 	{
    		std::vector<double> lrfData;
    		this->lrf->Ranges(lrfData);
@@ -185,7 +179,6 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		uint8_t payload[len];
 
-
 		int m = 0;
 		for(int l = 0; l < lrfData.size(); l++)
 		{
@@ -197,18 +190,17 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 			payload[m++] = (uint8_t)tmp;
 		}
 
-		//printf("lrf at 0 = %f\n", lrfData.at(0));
+		if(lrf_debug)
+			printf("lrf at 0 = %f\n", lrfData.at(0));
 
-
-
-		if(!lrf_port.Write(&payload[0], len, (struct sockaddr*)&robot_addr))
+		if(!lrf_port.Write(&payload[0], len, (struct sockaddr*)&lrf_addr))
 		{
 			fprintf(stderr, "Failed to send lrf to listener!\n");
 			return;
 		}
 	}
 
-	if(gps_en == 1)
+	if(gps_en)
 	{
 		BclPacket gps_pkt;
 		GpsPayload gps_payload;
@@ -218,21 +210,33 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		double latitude_dec = this->gps->Latitude().Degree();
 		double longitude_dec = this->gps->Longitude().Degree();
 
-		uint16_t latitude_deg = (uint16_t)floor(latitude_dec);
-		uint16_t latitude_min = (uint16_t)((latitude_dec - floor(latitude_dec)) * 60.0);
-		uint16_t latitude_sec = (uint16_t)((latitude_min - floor(latitude_min)) * 60.0);
+		double latitude_deg = floor(latitude_dec);
+		double latitude_min = (latitude_dec - floor(latitude_dec)) * 60.0;
+		double latitude_sec = (latitude_min - floor(latitude_min)) * 60.0;
  
-		uint16_t longitude_deg = (uint16_t)(floor(longitude_dec));
-		uint16_t longitude_min = (uint16_t)((longitude_dec - floor(longitude_dec)) * 60.0);
-		uint16_t longitude_sec = (uint16_t)((longitude_min - floor(longitude_min)) * 60.0);
+		double longitude_deg = floor(longitude_dec);
+		double longitude_min = (longitude_dec - floor(longitude_dec)) * 60.0;
+		double longitude_sec = (longitude_min - floor(longitude_min)) * 60.0;
 
-		gps_payload.lat_degrees = latitude_deg;
-		gps_payload.lat_minutes = latitude_min;
-		gps_payload.lat_seconds = latitude_sec;
+		if(gps_debug) 
+		{
+			printf("gps: latitude = %f | longitude = %f\n", latitude_dec, longitude_dec);
+			printf("gps: latitude = %fdeg %f\'%f\" | longitude = %fdeg %f\'%f\"\n",
+																				latitude_deg,
+																				latitude_min,
+																				latitude_sec,
+																				longitude_deg,
+																				longitude_min,
+																				longitude_sec );
+		}
+
+		gps_payload.lat_degrees = (uint16_t)latitude_deg;
+		gps_payload.lat_minutes = (uint16_t)latitude_min;
+		gps_payload.lat_seconds = (uint16_t)latitude_sec;
   
-		gps_payload.long_degrees = longitude_deg;
-		gps_payload.long_minutes = longitude_min;
-		gps_payload.long_seconds = longitude_sec;
+		gps_payload.long_degrees = (uint16_t)longitude_deg;
+		gps_payload.long_minutes = (uint16_t)longitude_min;
+		gps_payload.long_seconds = (uint16_t)longitude_sec;
 
 		memset(buffer, 0, 255);
 		status = SerializeBclPacket(&gps_pkt, buffer, 255, &bytes_written);
@@ -243,14 +247,14 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 			return;
 		}
 
-		if(!gps_port.Write(&buffer[0], bytes_written, nullptr))
+		if(!gps_port.Write(&buffer[0], bytes_written, (struct sockaddr*)&sensors_addr))
 		{
 			fprintf(stderr, "Failed to send gps to listener!\n");
 			return;
 		}
 	}
 
-	if(imu_en == 1)
+	if(imu_en)
 	{	
 		BclPacket imu_pkt;
 		ImuPayload imu_payload;
@@ -264,6 +268,9 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		uint16_t z_orient = (uint16_t)yaw_degree;
 
+		if(imu_debug)
+			printf("imu: z_orient = %d\n", z_orient);
+
 		imu_payload.z_orient = z_orient;
 
 		memset(buffer, 0, 255);
@@ -275,7 +282,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 			return;
 		}
 
-		if(!imu_port.Write(&buffer[0], bytes_written, nullptr))
+		if(!imu_port.Write(&buffer[0], bytes_written, (struct sockaddr*)&sensors_addr))
 		{
 			fprintf(stderr, "Failed to send imu to listener!\n");
 			return;
@@ -283,62 +290,11 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	}
 }
 
-private: void Drive_ik(int* ik_buf)
-{
-
-	int lfWheels = 0;
-	int rtWheels = 0;
-
-	// arm
-    int turntable = 0;
-    int shoulder = 0;
-    int elbow = 0;
-    int wristPitch = 0;
-    int wristRot = 0;
-    int jaw = 0;
-
-    this->model->GetJoint("Wheel0")->SetVelocity(0,lfWheels);	//positive = forward
-    this->model->GetJoint("Wheel1")->SetVelocity(0,lfWheels);	
-    this->model->GetJoint("Wheel2")->SetVelocity(0,lfWheels);	
-    this->model->GetJoint("Wheel3")->SetVelocity(0,rtWheels);	//negative = forward
-    this->model->GetJoint("Wheel4")->SetVelocity(0,rtWheels);	
-    this->model->GetJoint("Wheel5")->SetVelocity(0,rtWheels);	
-
-	// buffer[0] = turntable
-	// buffer[1] = elbow
-	// buffer[2] = shoulder
-		
-	ik_buf[0] = ik_buf[0] * M_PI / 180;
-	ik_buf[1] = ik_buf[1] * M_PI / 180;
-	ik_buf[2] = ik_buf[2] * M_PI / 180;
-
-	math::Angle tt((double)ik_buf[0]);
-	math::Angle shld((double)ik_buf[2]);
-	math::Angle elb((double)ik_buf[1]);
-
-	//negative = clockwise
-    //this->model->GetJoint("Turntable")->SetAngle(0, tt);
-	//this->model->GetJoint("Turntable")->SetPosition(0, 0.2);
-
-	//positive = up
-	//this->model->GetJoint("Shoulder")->SetAngle(0, shld);
-
-	//positive = up
-    //this->model->GetJoint("Elbow")->SetAngle(0, elb);
-
-	this->model->GetJoint("WristPitch")->SetVelocity(0,wristPitch); //positive = up
-	this->model->GetJoint("WristRot")->SetVelocity(0,wristRot);     //negative = clockwise
-	this->model->GetJoint("Jaw0")->SetVelocity(0,jaw);       		//positive = closed
-	this->model->GetJoint("Jaw1")->SetVelocity(0,jaw);       		//positive = closed
-	
-}
-
-private: void Drive(uint8_t* buffer)
+private: void Drive(TankDrivePayload tank_drive_payload)
 {
 	// wheels
-    int lfWheels = (int)((int8_t)buffer[0]) / 10;
-    int rtWheels = (int)((int8_t)buffer[1]) / 10;
-	//printf("lfWheels = %d | rtWheels = %d\n", lfWheels, rtWheels);
+    int lfWheels = (int)tank_drive_payload.left / 10;
+    int rtWheels = (int)tank_drive_payload.right / 10;
 
 	// arm
     int turntable = 0;
@@ -348,56 +304,17 @@ private: void Drive(uint8_t* buffer)
     int wristRot = 0;
     int jaw = 0;
 
+	if(drive_cmd_debug)
+		printf("lfWheels = %d | rtWheels = %d\n", lfWheels, rtWheels);
 
-
-	/*
-	 * Don't worry about these comments this is tyler trying different things out
-	 */
-
-
-	//lfWheels *= -1;
-
-	
-    //if(this->model->GetWorld()->GetRealTime().Double() > 21.0)
-	//	lfWheels *= -1;
-
-	//printf("SimTime = %f\n", this->model->GetWorld()->GetSimTime().Double());
-
-/*
-	if(this->model->GetWorld()->GetSimTime().Double() > 1132.0)
-		lfWheels *= -1;
-
-	if(this->model->GetWorld()->GetSimTime().Double() > 1134.62)
-	{
-		lfWheels = 0;
-		rtWheels = 0;
-	}
-
-
-    if(this->model->GetWorld()->GetSimTime().Double() < 1125.0)
-	{
-		lfWheels = 0;
-		rtWheels = 0;
-	}
-*/
 
     this->model->GetJoint("Wheel0")->SetVelocity(0,lfWheels);	//positive = forward
     this->model->GetJoint("Wheel1")->SetVelocity(0,lfWheels);	
     this->model->GetJoint("Wheel2")->SetVelocity(0,lfWheels);	
     this->model->GetJoint("Wheel3")->SetVelocity(0,rtWheels);	//negative = forward
     this->model->GetJoint("Wheel4")->SetVelocity(0,rtWheels);	
-    this->model->GetJoint("Wheel5")->SetVelocity(0,rtWheels);	
-
-/*
-	this->model->GetJoint("Turntable")->SetPosition(0,0);  	//negative = clockwise
-    this->model->GetJoint("Shoulder")->SetPosition(0,0.36); 	//positive = up
-   	this->model->GetJoint("Elbow")->SetPosition(0,3.14);  			//positive = up
-    this->model->GetJoint("WristPitch")->SetPosition(0,-2.35); //positive = up
-	this->model->GetJoint("WristRot")->SetPosition(0,wristRot);     //negative = clockwise
-    this->model->GetJoint("Jaw0")->SetPosition(0,jaw);       		//positive = closed
-    this->model->GetJoint("Jaw1")->SetPosition(0,jaw);       		//positive = closed
-*/
-
+ 	this->model->GetJoint("Wheel5")->SetVelocity(0,rtWheels);	
+	
 	this->model->GetJoint("Turntable")->SetVelocity(0,turntable);  	//negative = clockwise
     this->model->GetJoint("Shoulder")->SetVelocity(0,0); 	//positive = up
    	this->model->GetJoint("Elbow")->SetVelocity(0,elbow);  			//positive = up
@@ -405,6 +322,18 @@ private: void Drive(uint8_t* buffer)
 	this->model->GetJoint("WristRot")->SetVelocity(0,wristRot);     //negative = clockwise
     this->model->GetJoint("Jaw0")->SetVelocity(0,jaw);       		//positive = closed
     this->model->GetJoint("Jaw1")->SetVelocity(0,jaw);       		//positive = closed
+
+// experimenting; sometimes helps when arm continually moves down, still don't know for sure tho
+/*
+	this->model->GetJoint("Turntable")->SetPosition(0,turtable);  	//negative = clockwise
+    this->model->GetJoint("Shoulder")->SetPosition(0,shoulder); 	//positive = up
+   	this->model->GetJoint("Elbow")->SetPosition(0,elbow);  			//positive = up
+    this->model->GetJoint("WristPitch")->SetPosition(0,wristPitch); //positive = up
+	this->model->GetJoint("WristRot")->SetPosition(0,wristRot);     //negative = clockwise
+    this->model->GetJoint("Jaw0")->SetPosition(0,jaw);       		//positive = closed
+    this->model->GetJoint("Jaw1")->SetPosition(0,jaw);       		//positive = closed
+*/
+
 
 }
 

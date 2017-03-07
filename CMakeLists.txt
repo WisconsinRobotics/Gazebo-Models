@@ -17,6 +17,7 @@ target_link_libraries(InsomniaPlugin ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES})
 add_library(AscentPlugin SHARED 
 	plugins/AscentPlugin.cpp 
 	utils/UdpSocket.cpp 
+	../BadgerCommandLibrary/packet/src/crc8.c
 	../BadgerCommandLibrary/packet/src/Packet.c
 	../BadgerCommandLibrary/robot/ascent/src/MechanicalControlPackets.c
 	../BadgerCommandLibrary/robot/ascent/src/SensorControlPackets.c

@@ -32,16 +32,16 @@
 	  <pose>0 0 0.7 0 0 0</pose>
 	</include>
 
-<model name="camGround">
+<!--<model name="camGround">
      <pose>0 0 0 0 0 0</pose> 
 	<static>true</static>    
-	 <link name="camGround">
+	 <link name="camGround">-->
        <!--<visual name ='visual'>\
          <geometry>
            <box><size>1 1 1</size></box>
          </geometry>
        </visual>\-->
-       <sensor name="worldCamera" type="camera">
+<!--       <sensor name="worldCamera" type="camera">
            <pose>0 0 3 0 0 0</pose>
              <camera name="saveCamera">
                <horizontal_fov>1</horizontal_fov>
@@ -63,7 +63,7 @@
          <visualize>true</visualize>
        </sensor>
      </link>
-   </model>
+   </model>-->
 
     <model name="box">
     <static>true</static>
