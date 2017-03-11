@@ -20,31 +20,44 @@
 #include <SensorControlPackets.h>
 #include "../utils/UdpSocket.hpp"
 #include <calculateAngles.h>
+#include <pthread.h>
+#include <mutex>
 
-static const char* IP_ENDPOINT = "192.168.1.184";
+const char* IP_ENDPOINT = "192.168.1.184";
+const int LRF_PORT = 20001;
+const int SENSORS_PORT = 15000;
 
-static Socket::UdpSocket client_port(10000);
-static Socket::UdpSocket lrf_port(20000);
-static Socket::UdpSocket gps_port(20001);
-static Socket::UdpSocket imu_port(20002);
+Socket::UdpSocket client_port(10000);
+Socket::UdpSocket lrf_port(20000);
+Socket::UdpSocket gps_port(20002);
+Socket::UdpSocket imu_port(20003);
 
-// only ever have one or no test flag set at a time
-static int testing = 1;
+// flag to indicate whether to use a dummy drive command 
+int testing = 0;
 
 // enable flags for sensors
-static int lrf_en = 0;
-static int gps_en = 1;
-static int imu_en = 0;
+int lrf_en = 0;
+int gps_en = 0;
+int imu_en = 0;
 
 // debug flags
-static uint8_t lrf_debug = 0;
-static uint8_t imu_debug = 0;
-static uint8_t gps_debug = 1;
-static uint8_t drive_cmd_debug = 0;
+uint8_t lrf_debug = 0;
+uint8_t imu_debug = 0;
+uint8_t gps_debug = 0;
+uint8_t drive_cmd_debug = 0;
 
 // sensor endpoint addresses
-static struct sockaddr_in lrf_addr;   
-static struct sockaddr_in sensors_addr;
+struct sockaddr_in lrf_addr;   
+struct sockaddr_in sensors_addr;
+
+// drive command data structure
+BclPacket tank_drive_pkt;
+TankDrivePayload tank_drive_payload;
+
+// async drive command reads
+pthread_t thread;
+std::mutex mtx;
+uint8_t thread_running = 0;
 
 namespace gazebo
 {
@@ -57,77 +70,32 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     // Store the pointer to the model
     this->model = _parent;
 
-	// Initialize sensors
-    if ((this->lrf = std::dynamic_pointer_cast<gazebo::sensors::RaySensor>(
-         gazebo::sensors::SensorManager::Instance()->GetSensor("laser"))) == NULL)
-    {
-        std::cout << "COULD NOT FIND LASER SENSOR" << std::endl;
-        return;
-    }
-
-	if ((this->gps = std::dynamic_pointer_cast<gazebo::sensors::GpsSensor>(
-		 gazebo::sensors::SensorManager::Instance()->GetSensor("gps"))) == NULL)
-	{
-		std::cout << "COULD NOT FIND GPS SENSOR" << std::endl;
-		return;
-	}
-
-	if ((this->imu = std::dynamic_pointer_cast<gazebo::sensors::ImuSensor>(
-		 gazebo::sensors::SensorManager::Instance()->GetSensor("imu"))) == NULL)
-	{
-		std::cout << "COULD NOT FIND IMU SENSOR" << std::endl;
-		return;
-	}
-		
-	// Open Udp ports 
-	if(!testing)
-	{
-    	if(!client_port.Open())
-    	{
-        	std::cout << "Failed to open client_port!" << std::endl;
-    	}
-	}
-	
-	if(lrf_en)
-	{
-		if(!lrf_port.Open())
-    	{
-        	std::cout << "Failed to open lrf_port!" << std::endl;
-   		 }
-	}
-	
-	if(gps_en)
-	{
-		if(!gps_port.Open())
-    	{
-        	std::cout << "Failed to open gps_port!" << std::endl;
-   		 }
-	}
-	
-	if(imu_en)
-	{
-		if(!imu_port.Open())
-    	{
-        	std::cout << "Failed to open imu_port!" << std::endl;
-   		 }
-	}
-
-	// setup outgoing udp address
-    memset(&lrf_addr, 0, sizeof(struct sockaddr_in));    
-    inet_pton(AF_INET, IP_ENDPOINT, &(lrf_addr.sin_addr));    
-    lrf_addr.sin_family = AF_INET;    
-    lrf_addr.sin_port = htons(20001); 	
-
-	memset(&sensors_addr, 0, sizeof(struct sockaddr_in));    
-    inet_pton(AF_INET, IP_ENDPOINT, &(sensors_addr.sin_addr));    
-    sensors_addr.sin_family = AF_INET;    
-    sensors_addr.sin_port = htons(15000); 		
+	// used to setup all the sensors based on the enable flags above
+	Initialize();
     
 	// Listen to the update event. This event is broadcast every
     // simulation iteration.
     this->updateConnection = event::Events::ConnectWorldUpdateBegin(
 			boost::bind(&AscentPlugin::OnUpdate, this, _1));
+}
 
+private: static void* GetDriveCommand(void* threadid)
+{
+	BCL_STATUS status;
+	uint8_t buffer[255];
+
+	while(1)
+	{
+		memset(buffer, 0, 255);
+		client_port.Read(&buffer[0], 255, nullptr);
+		mtx.lock();
+		status = DeserializeBclPacket(&tank_drive_pkt, buffer, 255);
+		mtx.unlock();
+		if(status != BCL_OK)
+		{
+			fprintf(stderr, "Failed to deserialize Tank Drive!\n");
+		}
+	}
 }
 
 // Called by the world update start event
@@ -139,31 +107,29 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 	memset(buffer, 0, 255);
 
-	BclPacket tank_drive_pkt;
-	TankDrivePayload tank_drive_payload;
-
     if(testing)
     {	
 		// fake drive command
 		tank_drive_payload.left = 50;
 		tank_drive_payload.right = 50;
     }
-    else
-    {
-		// drive command
+	else if(!thread_running)
+	{
 		InitializeSetTankDriveSpeedPacket(&tank_drive_pkt, &tank_drive_payload);
-        client_port.Read(&buffer[0], 255, nullptr);
-		status = DeserializeBclPacket(&tank_drive_pkt, buffer, 255);
-		if(status != BCL_OK)
+		if(pthread_create(&thread, NULL, GetDriveCommand, NULL))
 		{
-			fprintf(stderr, "Failed to deserialize Tank Drive!\n");
+			fprintf(stderr, "Error: unable to create thread\n");
 			return;
 		}
+		thread_running = 1;
+	}
 
-    }
+	mtx.lock();
+	TankDrivePayload tmp = tank_drive_payload;
+	mtx.unlock();
 
 	// move robot
-   	Drive(tank_drive_payload);
+   	Drive(tmp);
 
 	if(lrf_en)
 	{
@@ -294,7 +260,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 private: void Drive(TankDrivePayload tank_drive_payload)
 {
 	// wheels
-    int lfWheels = (int)tank_drive_payload.left / 10;
+    int lfWheels = (int)tank_drive_payload.left / 10; // scale to 0 - 10 speed
     int rtWheels = (int)tank_drive_payload.right / 10;
 
 	// arm
@@ -326,7 +292,7 @@ private: void Drive(TankDrivePayload tank_drive_payload)
 
 // experimenting; sometimes helps when arm continually moves down, still don't know for sure tho
 /*
-	this->model->GetJoint("Turntable")->SetPosition(0,turtable);  	//negative = clockwise
+	this->model->GetJoint("Turntable")->SetPosition(0,turntable);  	//negative = clockwise
     this->model->GetJoint("Shoulder")->SetPosition(0,shoulder); 	//positive = up
    	this->model->GetJoint("Elbow")->SetPosition(0,elbow);  			//positive = up
     this->model->GetJoint("WristPitch")->SetPosition(0,wristPitch); //positive = up
@@ -334,24 +300,93 @@ private: void Drive(TankDrivePayload tank_drive_payload)
     this->model->GetJoint("Jaw0")->SetPosition(0,jaw);       		//positive = closed
     this->model->GetJoint("Jaw1")->SetPosition(0,jaw);       		//positive = closed
 */
+}
 
+private: void Initialize()
+{
+	// port for drive commands
+	if(!testing)
+	{
+    	if(!client_port.Open())
+    	{
+        	std::cout << "Failed to open client_port!" << std::endl;
+    	}
+	}
 
+	if(lrf_en)
+	{
+    	if ((this->lrf = std::dynamic_pointer_cast<gazebo::sensors::RaySensor>(
+        	gazebo::sensors::SensorManager::Instance()->GetSensor("laser"))) == NULL)
+    	{
+        	std::cout << "COULD NOT FIND LASER SENSOR" << std::endl;
+        	return;
+    	}
+
+		if(!client_port.Open())
+    	{
+        	std::cout << "Failed to open client_port!" << std::endl;
+    	}
+		
+		memset(&lrf_addr, 0, sizeof(struct sockaddr_in));
+    	inet_pton(AF_INET, IP_ENDPOINT, &(lrf_addr.sin_addr));
+    	lrf_addr.sin_family = AF_INET;
+    	lrf_addr.sin_port = htons(LRF_PORT);
+	}
+
+	if(gps_en)
+	{
+		if ((this->gps = std::dynamic_pointer_cast<gazebo::sensors::GpsSensor>(
+			gazebo::sensors::SensorManager::Instance()->GetSensor("gps"))) == NULL)
+		{
+			std::cout << "COULD NOT FIND GPS SENSOR" << std::endl;
+			return;
+		}
+
+		if(!lrf_port.Open())
+    	{
+        	std::cout << "Failed to open lrf_port!" << std::endl;
+   		}
+	}
+
+	if(imu_en)
+	{
+		if ((this->imu = std::dynamic_pointer_cast<gazebo::sensors::ImuSensor>(
+			gazebo::sensors::SensorManager::Instance()->GetSensor("imu"))) == NULL)
+		{
+			std::cout << "COULD NOT FIND IMU SENSOR" << std::endl;
+			return;
+		}
+		
+		if(!imu_port.Open())
+    	{
+        	std::cout << "Failed to open imu_port!" << std::endl;
+   		}
+	}
+	
+	if(gps_en | imu_en)
+	{
+		memset(&sensors_addr, 0, sizeof(struct sockaddr_in));
+    	inet_pton(AF_INET, IP_ENDPOINT, &(sensors_addr.sin_addr));
+    	sensors_addr.sin_family = AF_INET;
+    	sensors_addr.sin_port = htons(SENSORS_PORT);
+	}
 }
 
 // Pointer to the model
 private: physics::ModelPtr model;
 
-//pointer to the laserSensor
+// Pointer to the LRF
 private: sensors::RaySensorPtr lrf;
 
-//pointer to the gps sensor
+// Pointer to the gps sensor
 private: sensors::GpsSensorPtr gps;
 
-//pointer to the imu sensor
+// Pointer to the imu sensor
 private: sensors::ImuSensorPtr imu;
 
 // Pointer to the update event connection
 private: event::ConnectionPtr updateConnection;
+
 };
 
 
