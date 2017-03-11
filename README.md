@@ -5,15 +5,15 @@ A simulated model of various robots made by Wisconsin Robotics using the popular
 The simulation environment Gazebo is required for this repo. To install:
 
 ```
-sudo apt install gazebo7 libgazebo7-dev
+sudo apt install gazebo8 libgazebo8-dev
 ```
-At the making of this document Gazebo 7 was the lastest verison released, your exact commands may vary. To see all packages run:
+At the making of this document Gazebo 8.0 was the lastest verison released, your exact commands may vary. To see all packages run:
 ```
 sudo apt-cache search gazebo
 ```
 
 ## Dependecnies
-Currently our robot models require BadgerCommandLibrary (BCL) for sending and recieving packets and InverseKinematices. So you must the BCL and IK repos in one directory above of Gazebo-Models.
+Currently our robot models require BadgerCommandLibrary (BCL) for sending and recieving packets and InverseKinematices. So you must have the BCL and IK repos in one directory above of Gazebo-Models.
 
 ## Building
 Gazebo is only supported on Ubuntu Linux. To build:
