@@ -23,7 +23,7 @@
 #include <pthread.h>
 #include <mutex>
 
-const char* IP_ENDPOINT = "192.168.1.184";
+const char* IP_ENDPOINT = "192.168.1.194";
 const int LRF_PORT = 20001;
 const int SENSORS_PORT = 15000;
 
@@ -33,10 +33,10 @@ Socket::UdpSocket gps_port(20002);
 Socket::UdpSocket imu_port(20003);
 
 // flag to indicate whether to use a dummy drive command 
-int testing = 0;
+int testing = 1;
 
 // enable flags for sensors
-int lrf_en = 0;
+int lrf_en = 1;
 int gps_en = 0;
 int imu_en = 0;
 
@@ -87,9 +87,9 @@ private: static void* GetDriveCommand(void* threadid)
 	while(1)
 	{
 		memset(buffer, 0, 255);
-		client_port.Read(&buffer[0], 255, nullptr);
+		uint8_t bytes_read = client_port.Read(&buffer[0], 255, nullptr);
 		mtx.lock();
-		status = DeserializeBclPacket(&tank_drive_pkt, buffer, 255);
+		status = DeserializeBclPacket(&tank_drive_pkt, buffer, bytes_read);
 		mtx.unlock();
 		if(status != BCL_OK)
 		{
@@ -322,13 +322,25 @@ private: void Initialize()
         	return;
     	}
 
-		if(!client_port.Open())
+		if(!lrf_port.Open())
     	{
-        	std::cout << "Failed to open client_port!" << std::endl;
+        	std::cout << "Failed to open lrf_port!" << std::endl;
     	}
 		
 		memset(&lrf_addr, 0, sizeof(struct sockaddr_in));
-    	inet_pton(AF_INET, IP_ENDPOINT, &(lrf_addr.sin_addr));
+
+    	int status = inet_pton(AF_INET, IP_ENDPOINT, &(lrf_addr.sin_addr));
+
+		if(status == 0)
+		{
+			std::cout << "src does not contain a character string representing ";
+			std::cout << "a valid network address in the specified address family" << std::endl;
+		}
+		if(status == -1)
+		{
+			std::cout << "network error" << std::endl;
+		}
+
     	lrf_addr.sin_family = AF_INET;
     	lrf_addr.sin_port = htons(LRF_PORT);
 	}
@@ -342,9 +354,9 @@ private: void Initialize()
 			return;
 		}
 
-		if(!lrf_port.Open())
+		if(!gps_port.Open())
     	{
-        	std::cout << "Failed to open lrf_port!" << std::endl;
+        	std::cout << "Failed to open gps_port!" << std::endl;
    		}
 	}
 
