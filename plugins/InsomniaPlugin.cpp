@@ -25,17 +25,28 @@ static Socket::UdpSocket imu_port(20001);
 static Socket::UdpSocket gps_port(20002);
 
 static uint8_t testing = 1; 
-static int lrf_en = 0;
-static int imu_en = 0; 
-static int gps_en = 0;
+static uint8_t lrf_en = 0;
+static uint8_t imu_en = 0; 
+static uint8_t gps_en = 0;
 
 static int lrf_count = 0;
 
+// sensor endpoint addresses
+static struct sockaddr_in lrf_addr;
+static struct sockaddr_in sensors_addr;
 static struct sockaddr_in robot_addr;    
+
+// drive command data structure
+BclPacket tank_drive_pkt;
+TankDrivePayload tank_drive_payload;
+
+// async drive command reads
+pthread_t thread;
+std::mutex mtx;
+uint8_t thread_running = 0;
 
 namespace gazebo
 {
-
 
 class InsomniaPlugin : public ModelPlugin
 {
@@ -44,8 +55,10 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 {
     // Store the pointer to the model
     this->model = _parent;
+		
+		// used to setup all the sensors based on the enable flags above
 
-    if ((this->lrf = std::dynamic_pointer_cast<gazebo::sensors::RaySensor>(
+	if ((this->lrf = std::dynamic_pointer_cast<gazebo::sensors::RaySensor>(
          gazebo::sensors::SensorManager::Instance()->GetSensor("laser"))) == NULL)
     {
         std::cout << "COULD NOT FIND LASER SENSOR" << std::endl;
@@ -90,26 +103,54 @@ public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 	
 }
 
+private: static void* GetDriveCommand(void* threadid)
+{
+	BCL_STATUS status;
+	uint8_t buffer[255];
+
+	while(1)
+	{
+		memset(buffer, 0, 255);
+		uint8_t bytes_read = client_port.Read(&buffer[0],255, nullptr);
+		mtx.lock();
+		status = DeserializeBclPacket(&tank_drive_pkt, buffer, bytes_read);
+		mtx.unlock();
+		if(status != BCL_OK)
+		{
+			fprintf(stderr, "Failed to deserialize Tank Drive!\n");
+		}
+	}
+}
+
 // Called by the world update start event
 public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
 
 	BCL_STATUS status;
     uint8_t buffer[255];
-	memset(buffer, 0, 255);
-    int rd = 0;
 	uint8_t bytes_written;
 
+	memset(buffer,0,255);
+	int rd = 0;
 
-    if(!testing)
-    {
-		// drive command
-        rd = client_port.Read(&buffer[0], 255, nullptr);
-		printf("rd = %d\n", rd);
-        //if (rd != 12)
-	    //	return;
-    }
-    else
+	if(testing)
+	{
+		//fake drive command
+		tank_drive_payload.left = 50;
+		tank_drive_payload.right = 50;
+	}
+
+   	else if (!thread_running)
+	{
+			InitializeSetTankDriveSpeedPacket(&tank_drive_pkt, &tank_drive_payload);
+			if(pthread_create(&thread, NULL, GetDriveCommand, NULL))
+			{
+				fprintf(stderr, "Error: unalbe to create thread\n");
+				return;
+			}
+			thread_running = 1;
+	}	
+   else
     {
 		// fake drive command
         for(int k = 0; k < 12; k++)
@@ -118,8 +159,12 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
         }
     }
 
-	// move robot
-    Drive(buffer);
+   mtx.lock();
+   TankDrivePayload tmp = tank_drive_payload;
+   mtx.unlock();
+   
+   // move robot
+   Drive(tmp);
 		
 	if(imu_en == 1)
 	{
@@ -131,14 +176,17 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		math::Quaternion orientation = this->imu->Orientation();
 
-		double yaw = orientation.GetYaw();
-		double yaw_degree = yaw * 180 / M_PI;  
+		uint8_t yaw = orientation.GetYaw();
+		uint8_t yaw_degree = yaw * 180 / M_PI;  
 	    //printf("Yaw is: %f\n", yaw);
 
-		uint8_t tmp = (uint8_t)yaw_degree;
+		uint16_t z_orient = (uint16_t)yaw_degree;
+
+		imu_payload.z_orient = z_orient;
 
 		memset(buffer, 0, 255);
 		status = SerializeBclPacket(&imu_pkt, buffer, 255, &bytes_written);
+		
 
 		if(status != BCL_OK)
 		{
@@ -146,7 +194,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 			return;
 		}
 			
-		if(!imu_port.Write(&tmp, 1 , (struct sockaddr*)&robot_addr))
+		if(!imu_port.Write(&buffer[0], bytes_written , (struct sockaddr*)&robot_addr))
 		{
 				fprintf(stderr, "Failed to send imu to listener!\n");
 				return;
@@ -160,6 +208,10 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		if(lrfData.size() == 0)
 		    return;
+		
+		// LRF data is flipped, so reverse the array
+		std::reverse(std::begin(lrfData), std::end(lrfData));
+
 
 		int len = lrfData.size()*2;
 		uint8_t payload[len];
@@ -189,8 +241,8 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		InitializeReportGPSPacket(&gps_pkt, &gps_payload);
 
-		double latitude_dec = this->gps->Latitude().Degree();
-		double longitude_dec = this->gps->Longitude().Degree();
+		uint8_t latitude_dec = this->gps->Latitude().Degree();
+		uint8_t longitude_dec = this->gps->Longitude().Degree();
 
 		uint8_t latitude_deg = (uint8_t)floor(latitude_dec);
 		uint8_t latitude_min = (uint8_t)((latitude_dec - floor(latitude_dec)) * 60.0);
@@ -199,14 +251,15 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		uint8_t longitude_deg = (uint8_t)(floor(longitude_dec));
 		uint8_t longitude_min = (uint8_t)((longitude_dec- floor(longitude_dec)) * 60.0);
 		uint8_t longitude_sec = (uint8_t)((longitude_min - floor(longitude_min)) * 60.0);
+	
 
-		gps_payload.lat_degrees = latitude_deg;
-		gps_payload.lat_minutes = latitude_min;
-		gps_payload.lat_seconds = latitude_sec;
+		gps_payload.lat_degrees = (uint16_t)latitude_deg;
+		gps_payload.lat_minutes = (uint16_t)latitude_min;
+		gps_payload.lat_seconds = (uint16_t)latitude_sec;
 
-		gps_payload.long_degrees = longitude_deg;
-		gps_payload.long_minutes = longitude_min;
-		gps_payload.long_seconds = longitude_sec;
+		gps_payload.long_degrees = (uint16_t)longitude_deg;
+		gps_payload.long_minutes = (uint16_t)longitude_min;
+		gps_payload.long_seconds = (uint16_t)longitude_sec;
 
 
 		memset(buffer, 0, 255);
@@ -218,7 +271,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 			return;
 		}
 
-		if(!gps_port.Write(&buffer[0], bytes_written, nullptr))
+		if(!gps_port.Write(&buffer[0], bytes_written, (struct sockaddr*)&sensors_addr))
 		{
 				fprintf(stderr, "Failed to send gps to listener!\n");
 				return;
@@ -226,17 +279,17 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	}
 }
 
-private: void Drive(uint8_t *buffer)
+private: void Drive(TankDrivePayload tank_drive_payload)
 {
 
     //buffer[0] = buffer[0] < 0xA ? 0 : 0xA;
     //buffer[3] = buffer[3] < 0xA ? 0 : 0xA;
-    int lfWlVel = (int)((int8_t)buffer[0]);
+    int lfWlVel = (int8_t)(tank_drive_payload.left / 10);
     //int lfWlVel = buffer[6] ? (-1 * (int)buffer[0]) : (int)buffer[0];
     //int rtWlVel = buffer[9] ? (int)buffer[3] : (-1 * (int)buffer[3]);
-    int rtWlVel = (-1*(int)((int8_t)buffer[1]));
-	//printf("lfWlVel = %d | rtWlVel = %d\n",lfWlVel,rtWlVel);
-    int armTrnTblVel = 0;
+    int rtWlVel = (-1*(int)((int8_t)tank_drive_payload.right / 10));
+		//arm
+	int armTrnTblVel = 0;
     int armShldrVel = 0;
     int armElbwVel = 0;
     int armWrstVel = 0;
@@ -275,13 +328,13 @@ private: sensors::ImuSensorPtr imu;
 
 // Pointer to the update event connection
 private: event::ConnectionPtr updateConnection;
+
+
 };
 
 
 
-
 // Register this plugin with the simulator
-GZ_REGISTER_MODEL_PLUGIN(InsomniaPlugin)
+GZ_REGISTER_MODEL_PLUGIN(InsomniaPlugin);
 }
-
 
