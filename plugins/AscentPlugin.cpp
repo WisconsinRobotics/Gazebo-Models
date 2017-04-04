@@ -23,7 +23,7 @@
 #include <pthread.h>
 #include <mutex>
 
-const char* IP_ENDPOINT = "192.168.1.194";
+const char* IP_ENDPOINT = "192.168.1.50";
 const int LRF_PORT = 20001;
 const int SENSORS_PORT = 15000;
 
@@ -33,12 +33,12 @@ Socket::UdpSocket gps_port(20002);
 Socket::UdpSocket imu_port(20003);
 
 // flag to indicate whether to use a dummy drive command 
-int testing = 1;
+int testing = 0;
 
 // enable flags for sensors
 int lrf_en = 1;
-int gps_en = 0;
-int imu_en = 0;
+int gps_en = 1;
+int imu_en = 1;
 
 // debug flags
 uint8_t lrf_debug = 0;
@@ -90,6 +90,7 @@ private: static void* GetDriveCommand(void* threadid)
 		uint8_t bytes_read = client_port.Read(&buffer[0], 255, nullptr);
 		mtx.lock();
 		status = DeserializeBclPacket(&tank_drive_pkt, buffer, bytes_read);
+		printf("lfWheels = %d | rtWheels = %d\n", tank_drive_payload.left, tank_drive_payload.right);
 		mtx.unlock();
 		if(status != BCL_OK)
 		{
@@ -116,12 +117,21 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	else if(!thread_running)
 	{
 		InitializeSetTankDriveSpeedPacket(&tank_drive_pkt, &tank_drive_payload);
+		/*
 		if(pthread_create(&thread, NULL, GetDriveCommand, NULL))
 		{
 			fprintf(stderr, "Error: unable to create thread\n");
 			return;
 		}
 		thread_running = 1;
+		*/
+		uint8_t bytes_read = client_port.Read(&buffer[0], 255, nullptr);
+		status = DeserializeBclPacket(&tank_drive_pkt, buffer, bytes_read);
+		printf("lfWheels = %d | rtWheels = %d\n", tank_drive_payload.left, tank_drive_payload.right);
+		if(status != BCL_OK)
+		{
+			fprintf(stderr, "Failed to deserialize Tank Drive!\n");
+		}
 	}
 
 	mtx.lock();
@@ -174,8 +184,8 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		InitializeReportGPSPacket(&gps_pkt, &gps_payload);
 
-		double latitude_dec = this->gps->Latitude().Degree();
-		double longitude_dec = this->gps->Longitude().Degree();
+		double latitude_dec = this->gps->Latitude().Degree() * 1000;
+		double longitude_dec = this->gps->Longitude().Degree() * 1000;
 
 		double latitude_deg = floor(latitude_dec);
 		double latitude_min = (latitude_dec - floor(latitude_dec)) * 60.0;
@@ -231,7 +241,9 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		math::Quaternion orientation = this->imu->Orientation();
 
 		double yaw_rad = orientation.GetYaw();
-		double yaw_degree = yaw_rad * 180 / M_PI;  
+		yaw_rad = yaw_rad < 0 ? yaw_rad + 2*M_PI : yaw_rad;
+
+		double yaw_degree = yaw_rad * 180 / M_PI;
 
 		uint16_t z_orient = (uint16_t)yaw_degree;
 
@@ -283,7 +295,7 @@ private: void Drive(TankDrivePayload tank_drive_payload)
  	this->model->GetJoint("Wheel5")->SetVelocity(0,rtWheels);	
 	
 	this->model->GetJoint("Turntable")->SetVelocity(0,turntable);  	//negative = clockwise
-    this->model->GetJoint("Shoulder")->SetVelocity(0,0); 	//positive = up
+    this->model->GetJoint("Shoulder")->SetVelocity(0,0); 			//positive = up
    	this->model->GetJoint("Elbow")->SetVelocity(0,elbow);  			//positive = up
     this->model->GetJoint("WristPitch")->SetVelocity(0,wristPitch); //positive = up
 	this->model->GetJoint("WristRot")->SetVelocity(0,wristRot);     //negative = clockwise
