@@ -14,6 +14,9 @@ include_directories(../InverseKinematics/include)
 add_library(InsomniaPlugin SHARED plugins/InsomniaPlugin.cpp utils/UdpSocket.cpp)
 target_link_libraries(InsomniaPlugin ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES})
 
+add_library(TennisBallPlugin SHARED plugins/TennisBallPlugin.cpp)
+target_link_libraries(TennisBallPlugin ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES})
+
 add_library(AscentPlugin SHARED 
 	plugins/AscentPlugin.cpp 
 	utils/UdpSocket.cpp 

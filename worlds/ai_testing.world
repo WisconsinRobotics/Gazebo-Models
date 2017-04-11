@@ -27,6 +27,10 @@
       <uri>model://robot-Ascent</uri>
       <pose>0 -0.5 0.7 0 0 1.57</pose>
     </include>
+	 <include>
+	  <uri>model://tennis_ball</uri>
+	  <pose>5 5 1 0 0 0</pose>
+	</include> 
 	<include>
 	  <uri>model://ai_test</uri>
 	  <pose>0 0 0.7 0 0 0</pose>
@@ -41,7 +45,8 @@
            <box><size>1 1 1</size></box>
          </geometry>
        </visual>\-->
-       <sensor name="worldCamera" type="camera">
+
+     <!--  <sensor name="worldCamera" type="camera">
            <pose>0 0 3 0 0 0</pose>
              <camera name="saveCamera">
                <horizontal_fov>1</horizontal_fov>
@@ -57,11 +62,11 @@
                <!--<save enabled=true>
                  <path>Captures/2017_02_27</path>
                </save>-->
-             </camera>
+           <!--   </camera>
              <always_on>1</always_on>
              <update_rate>30</update_rate>
          <visualize>true</visualize>
-       </sensor>
+      </sensor>-->
      </link>
    </model>
 
