@@ -12,6 +12,10 @@
 		</solver>
 	  </ode>
 	</physics>
+<spherical_coordinates>
+        <latitude_deg>43</latitude_deg>
+        <longitude_deg>-89</longitude_deg>
+    </spherical_coordinates>
     <include>
       <uri>model://sun</uri>
     </include>
