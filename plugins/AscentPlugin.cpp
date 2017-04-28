@@ -32,8 +32,11 @@ Socket::UdpSocket lrf_port(20000);
 Socket::UdpSocket gps_port(20002);
 Socket::UdpSocket imu_port(20003);
 
+Socket::UdpSocket xbox360_port(20008);
+
 // flag to indicate whether to use a dummy drive command 
-int testing = 0;
+int fake_drive = 1;
+int xbox_drive = 0;
 
 // enable flags for sensors
 int lrf_en = 1;
@@ -90,7 +93,6 @@ private: static void* GetDriveCommand(void* threadid)
 		uint8_t bytes_read = client_port.Read(&buffer[0], 255, nullptr);
 		mtx.lock();
 		status = DeserializeBclPacket(&tank_drive_pkt, buffer, bytes_read);
-		printf("lfWheels = %d | rtWheels = %d\n", tank_drive_payload.left, tank_drive_payload.right);
 		mtx.unlock();
 		if(status != BCL_OK)
 		{
@@ -103,17 +105,24 @@ private: static void* GetDriveCommand(void* threadid)
 public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 {
 	BCL_STATUS status;
-    uint8_t buffer[255];
+        uint8_t buffer[255];
 	uint8_t bytes_written;
 
 	memset(buffer, 0, 255);
 
-    if(testing)
+    if(fake_drive)
     {	
 		// fake drive command
 		tank_drive_payload.left = 50;
 		tank_drive_payload.right = 50;
     }
+ 	else if(xbox_drive)
+	{
+		memset(buffer, 0, 255);
+		uint8_t bytes_read = xbox360_port.Read(&buffer[0], 255, nullptr);
+		tank_drive_payload.left = buffer[2] ? -1 * (int) buffer[0] : (int)buffer[0];
+		tank_drive_payload.right = buffer[3] ? -1 * (int) buffer[1] : (int)buffer[1];
+	}
 	else if(!thread_running)
 	{
 		InitializeSetTankDriveSpeedPacket(&tank_drive_pkt, &tank_drive_payload);
@@ -127,7 +136,6 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		*/
 		uint8_t bytes_read = client_port.Read(&buffer[0], 255, nullptr);
 		status = DeserializeBclPacket(&tank_drive_pkt, buffer, bytes_read);
-		printf("lfWheels = %d | rtWheels = %d\n", tank_drive_payload.left, tank_drive_payload.right);
 		if(status != BCL_OK)
 		{
 			fprintf(stderr, "Failed to deserialize Tank Drive!\n");
@@ -245,7 +253,7 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		double yaw_degree = yaw_rad * 180 / M_PI;
 
-		uint16_t z_orient = (uint16_t)yaw_degree;
+		uint16_t z_orient = (360 - (uint16_t)yaw_degree) % 360;
 
 		if(imu_debug)
 			printf("imu: z_orient = %d\n", z_orient);
@@ -317,12 +325,20 @@ private: void Drive(TankDrivePayload tank_drive_payload)
 private: void Initialize()
 {
 	// port for drive commands
-	if(!testing)
+	if(!fake_drive && !xbox_drive)
 	{
     	if(!client_port.Open())
     	{
         	std::cout << "Failed to open client_port!" << std::endl;
     	}
+	}
+
+	if(xbox_drive)
+	{
+		if(!xbox360_port.Open())
+		{
+			std::cout << "Failed to open xbox360_port!" << std::endl;
+		}
 	}
 
 	if(lrf_en)
