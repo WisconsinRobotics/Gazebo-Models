@@ -192,13 +192,15 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		InitializeReportGPSPacket(&gps_pkt, &gps_payload);
 
-		double latitude_dec = this->gps->Latitude().Degree() * 1000;
-		double longitude_dec = this->gps->Longitude().Degree() * 1000;
+		double latitude_dec = this->gps->Latitude().Degree();
+		double longitude_dec = this->gps->Longitude().Degree();
 
 		double latitude_deg = floor(latitude_dec);
 		double latitude_min = (latitude_dec - floor(latitude_dec)) * 60.0;
 		double latitude_sec = (latitude_min - floor(latitude_min)) * 60.0;
  
+		// Take absolute value - GPS will only be used in negative longitude degrees in real life, so always send positive longitudes
+		longitude_dec = std::abs(longitude_dec);
 		double longitude_deg = floor(longitude_dec);
 		double longitude_min = (longitude_dec - floor(longitude_dec)) * 60.0;
 		double longitude_sec = (longitude_min - floor(longitude_min)) * 60.0;
@@ -217,11 +219,11 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 		gps_payload.lat_degrees = (uint16_t)latitude_deg;
 		gps_payload.lat_minutes = (uint16_t)latitude_min;
-		gps_payload.lat_seconds = (uint16_t)latitude_sec;
-  
+		gps_payload.lat_seconds = (uint16_t)(latitude_sec * 10);	// Since seconds is sent as fixed-point with 1 decimal place
+
 		gps_payload.long_degrees = (uint16_t)longitude_deg;
 		gps_payload.long_minutes = (uint16_t)longitude_min;
-		gps_payload.long_seconds = (uint16_t)longitude_sec;
+		gps_payload.long_seconds = (uint16_t)(longitude_sec * 10);	// Since seconds is sent as fixed-point with 1 decimal place
 
 		memset(buffer, 0, 255);
 		status = SerializeBclPacket(&gps_pkt, buffer, 255, &bytes_written);
