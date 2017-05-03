@@ -24,6 +24,8 @@
 #include <pthread.h>
 #include <mutex>
 
+uint8_t tennisball_debug = 1;
+
 namespace gazebo
 {
 
@@ -55,8 +57,14 @@ namespace gazebo
 		// Called by the world update start event
 		public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		{
-		
 			
+			double prevlatitude_deg = 0;
+			double prevlatitude_min = 0;
+			double prevlatitude_sec = 0;
+			double prevlongitude_deg = 0;
+			double prevlongitude_min = 0;
+			double prevlongitude_sec = 0;
+
 
 			double latitude_dec = this->gps->Latitude().Degree();
 			double longitude_dec = this->gps->Longitude().Degree();
@@ -68,11 +76,21 @@ namespace gazebo
 			double longitude_deg = floor(longitude_dec);
 			double longitude_min = (longitude_dec - floor(longitude_dec)) * 60.0;
 			double longitude_sec = (longitude_min - floor(longitude_min)) * 60.0;
+				
+				
+				if(tennisball_debug){
 
-
-					printf("gps: latitude = %f | longitude = %f\n", latitude_dec, longitude_dec);
-			printf("gps: latitude = %fdeg %f\'%f\" | longitude = %fdeg %f\'%f\"\n",
+					printf("Tennisball: latitude = %f | longitude = %f\n", latitude_dec, longitude_dec);
+			printf("Tennisball: latitude = %fdeg %f\'%f\" | longitude = %fdeg %f\'%f\"\n",
 				latitude_deg, latitude_min, latitude_sec, longitude_deg, longitude_min, longitude_sec );
+
+			prevlongitude_deg = longitude_deg;
+			prevlongitude_min = longitude_min;
+			prevlongitude_sec = longitude_sec;
+			prevlatitude_deg = latitude_deg;
+			prevlatitude_min = latitude_min;
+			prevlatitude_sec = latitude_sec;
+}
 			
 		
 				

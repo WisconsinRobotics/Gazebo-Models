@@ -15,6 +15,7 @@
 <spherical_coordinates>
         <latitude_deg>43</latitude_deg>
         <longitude_deg>-89</longitude_deg>
+	<heading_deg>180</heading_deg>
     </spherical_coordinates>
     <include>
       <uri>model://sun</uri>
@@ -81,7 +82,7 @@
         <pose>0 0 0 0 0 0</pose>\
         <visual name ='visual'>\
           <geometry>
-            <box><size>20 20 .5</size></box>
+            <box><size>40 40 .5</size></box>
           </geometry>
         </visual>\
         <collision name ='visual'>\
