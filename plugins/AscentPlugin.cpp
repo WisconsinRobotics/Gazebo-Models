@@ -23,7 +23,7 @@
 #include <pthread.h>
 #include <mutex>
 
-const char* IP_ENDPOINT = "192.168.1.50";
+const char* IP_ENDPOINT = "192.168.1.10";
 const int LRF_PORT = 20001;
 const int SENSORS_PORT = 15000;
 
@@ -35,7 +35,7 @@ Socket::UdpSocket imu_port(20003);
 Socket::UdpSocket xbox360_port(20008);
 
 // flag to indicate whether to use a dummy drive command 
-int fake_drive = 1;
+int fake_drive = 0;
 int xbox_drive = 0;
 
 // enable flags for sensors
@@ -110,12 +110,12 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 
 	memset(buffer, 0, 255);
 
-    if(fake_drive)
-    {	
+        if(fake_drive)
+        {	
 		// fake drive command
 		tank_drive_payload.left = 50;
 		tank_drive_payload.right = 50;
-    }
+        }
  	else if(xbox_drive)
 	{
 		memset(buffer, 0, 255);
@@ -155,12 +155,12 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
    		this->lrf->Ranges(lrfData);
 
 	   	if(lrfData.size() == 0)
-    	   	return;
+    	   	        return;
 
 		// LRF data is flipped, so reverse the array
 		std::reverse(std::begin(lrfData), std::end(lrfData));
 
-		int len = lrfData.size()*2;
+		int len = lrfData.size()*4;
 
 		uint8_t payload[len];
 
@@ -168,11 +168,15 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		for(int l = 0; l < lrfData.size(); l++)
 		{
 			lrfData.at(l) = lrfData.at(l) * 1000;
-			float f = (float)lrfData.at(l);
-			uint32_t uint = (uint32_t)(*(uint32_t*)&f);
-			uint16_t tmp = (uint16_t)lrfData.at(l);
-			payload[m++] = (uint8_t)(tmp >> 8);
-			payload[m++] = (uint8_t)tmp;
+
+			union {
+				float f;
+				unsigned char bytes[4];
+			} data_pt;
+
+			data_pt.f = (float)lrfData.at(l);
+			for(int i = 0; i < 4; i++)
+				payload[m++] = data_pt.bytes[i];
 		}
 
 		if(lrf_debug)
@@ -195,35 +199,51 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 		double latitude_dec = this->gps->Latitude().Degree();
 		double longitude_dec = this->gps->Longitude().Degree();
 
+		// Take absolute value - GPS will only be used in negative longitude
+                // degrees in real life, so always send positive longitudes
+		latitude_dec = std::abs(latitude_dec);
+		longitude_dec = std::abs(longitude_dec);
+
 		double latitude_deg = floor(latitude_dec);
 		double latitude_min = (latitude_dec - floor(latitude_dec)) * 60.0;
-		double latitude_sec = (latitude_min - floor(latitude_min)) * 60.0;
+		double latitude_sec = (latitude_min - floor(latitude_min)) * 60.0 * 10;
  
-		// Take absolute value - GPS will only be used in negative longitude degrees in real life, so always send positive longitudes
-		longitude_dec = std::abs(longitude_dec);
 		double longitude_deg = floor(longitude_dec);
 		double longitude_min = (longitude_dec - floor(longitude_dec)) * 60.0;
-		double longitude_sec = (longitude_min - floor(longitude_min)) * 60.0;
+		double longitude_sec = (longitude_min - floor(longitude_min)) * 60.0 * 10;
 
 		if(gps_debug) 
 		{
-			printf("gps: latitude = %f | longitude = %f\n", latitude_dec, longitude_dec);
-			printf("gps: latitude = %fdeg %f\'%f\" | longitude = %fdeg %f\'%f\"\n",
-																				latitude_deg,
-																				latitude_min,
-																				latitude_sec,
-																				longitude_deg,
-																				longitude_min,
-																				longitude_sec );
+		//	printf("gps: latitude = %f | longitude = %f\n", latitude_dec, longitude_dec);
 		}
 
-		gps_payload.lat_degrees = (uint16_t)latitude_deg;
-		gps_payload.lat_minutes = (uint16_t)latitude_min;
-		gps_payload.lat_seconds = (uint16_t)(latitude_sec * 10);	// Since seconds is sent as fixed-point with 1 decimal place
+                uint16_t lt[3]; 
+		decimalToDMS(latitude_dec, lt);
 
-		gps_payload.long_degrees = (uint16_t)longitude_deg;
-		gps_payload.long_minutes = (uint16_t)longitude_min;
-		gps_payload.long_seconds = (uint16_t)(longitude_sec * 10);	// Since seconds is sent as fixed-point with 1 decimal place
+                lt[0] = (uint16_t)latitude_deg;
+                lt[1] = (uint16_t)latitude_min;
+                lt[2] = (uint16_t)latitude_sec;
+
+                uint16_t lg[3]; 
+		decimalToDMS(longitude_dec, lg);
+
+                lg[0] = (uint16_t)longitude_deg;
+                lg[1] = (uint16_t)longitude_min;
+                lg[2] = (uint16_t)longitude_sec;
+
+		if(gps_debug) 
+		{
+			printf("gps: latitude = %d,%d,%d | longitude = %d,%d,%d\n", 
+                                                           lt[0], lt[1], lt[2], lg[0], lg[1], lg[2]);
+		}
+
+		gps_payload.lat_degrees = lt[0];
+		gps_payload.lat_minutes = lt[1];
+		gps_payload.lat_seconds = lt[2];
+
+		gps_payload.long_degrees = lg[0];
+		gps_payload.long_minutes = lg[1];
+		gps_payload.long_seconds = lg[2];
 
 		memset(buffer, 0, 255);
 		status = SerializeBclPacket(&gps_pkt, buffer, 255, &bytes_written);
@@ -279,6 +299,22 @@ public: void OnUpdate(const common::UpdateInfo & /*_info*/)
 	}
 }
 
+void decimalToDMS(double DDec, uint16_t* retval)
+{
+    uint16_t degrees = (uint16_t) DDec;
+    
+    double decMinutesSeconds = (DDec - degrees) / .60;
+    double minuteValue = decMinutesSeconds * 60;
+    uint16_t minutes = (uint16_t) minuteValue;
+    
+    // mul by 10 to avoid percision loss
+    uint16_t seconds = (uint16_t) ((minuteValue - minutes) * 60 * 10); 
+
+    *retval = degrees;
+    *(retval + 1) = minutes;
+    *(retval + 2) = seconds;
+}
+
 private: void Drive(TankDrivePayload tank_drive_payload)
 {
 	// wheels
@@ -304,13 +340,13 @@ private: void Drive(TankDrivePayload tank_drive_payload)
     this->model->GetJoint("Wheel4")->SetVelocity(0,rtWheels);	
  	this->model->GetJoint("Wheel5")->SetVelocity(0,rtWheels);	
 	
-	this->model->GetJoint("Turntable")->SetVelocity(0,turntable);  	//negative = clockwise
+/*	this->model->GetJoint("Turntable")->SetVelocity(0,turntable);  	//negative = clockwise
     this->model->GetJoint("Shoulder")->SetVelocity(0,0); 			//positive = up
    	this->model->GetJoint("Elbow")->SetVelocity(0,elbow);  			//positive = up
     this->model->GetJoint("WristPitch")->SetVelocity(0,wristPitch); //positive = up
 	this->model->GetJoint("WristRot")->SetVelocity(0,wristRot);     //negative = clockwise
     this->model->GetJoint("Jaw0")->SetVelocity(0,jaw);       		//positive = closed
-    this->model->GetJoint("Jaw1")->SetVelocity(0,jaw);       		//positive = closed
+    this->model->GetJoint("Jaw1")->SetVelocity(0,jaw);       		//positive = closed*/
 
 // experimenting; sometimes helps when arm continually moves down, still don't know for sure tho
 /*

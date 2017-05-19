@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sdf version="1.4">
+  <world name="default">
+  	<physics type="ode">
+	  <max_step_size>.001</max_step_size>
+	  <real_time_factor>1</real_time_factor>
+	  <real_time_update_rate>1000</real_time_update_rate>
+	  <ode>
+		<solver>
+		  <type>quick</type>
+		  <iters>100</iters>
+		</solver>
+	  </ode>
+	</physics>
+    <spherical_coordinates>
+        <latitude_deg>43</latitude_deg>
+        <longitude_deg>-89</longitude_deg>
+	<heading_deg>180</heading_deg>
+    </spherical_coordinates>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://robot-Ascent</uri>
+      <pose>25 0 0.5 0 0 1.57</pose>
+    </include>
+    <include>
+      <uri>model://tennis_ball</uri>
+      <pose>25 -25 0 0 0 0</pose>
+    </include>
+  </world>
+</sdf>

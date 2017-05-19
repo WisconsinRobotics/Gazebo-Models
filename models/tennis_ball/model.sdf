@@ -49,7 +49,7 @@
 		  	<horizontal>
 			  <noise type="gaussian">
 			    <mean>0</mean>
-				<stddev>1</stddev>
+				<stddev>0</stddev>
 			  </noise>
 			</horizontal>
 		  </position_sensing>

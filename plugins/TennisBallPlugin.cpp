@@ -24,7 +24,7 @@
 #include <pthread.h>
 #include <mutex>
 
-uint8_t tennisball_debug = 1;
+uint8_t tennisball_debug = 0;
 
 namespace gazebo
 {
