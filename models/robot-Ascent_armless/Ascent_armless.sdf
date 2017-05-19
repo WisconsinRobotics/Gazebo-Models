@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sdf version="1.5">
+  <model name="Ascent_armless">
+    <pose>0 0 0 0 0 0</pose>
+    <link name="Frame">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <must_be_base_link>1</must_be_base_link>
+      <inertial>
+        <mass>13.608</mass>
+        <pose>.007 -.129 .097 0 0 0</pose>
+        <inertia>
+          <ixx>0.585282</ixx>
+          <ixy>.0234</ixy>
+          <ixz>-.07316</ixz>
+          <iyy>.8779</iyy>
+          <iyz>.08779</iyz>
+          <izz>.7316</izz>
+        </inertia>
+      </inertial>
+      <visual name="Frame_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://robot-Ascent_armless/meshes/frame.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+	  <sensor name="laser" type="ray">
+      		<pose>0 .252 -.041 0 0 1.57</pose>
+		<ray>
+		  <scan>
+		  	<horizontal>
+			  <samples>360</samples>
+			  <resolution>1</resolution>
+			  <min_angle>0</min_angle>
+			  <max_angle>6.266</max_angle>
+			</horizontal>
+		  </scan>
+		  <range>
+		  	<min>0.02</min>
+			<max>6</max>
+			<resolution>0.01</resolution>
+		  </range>
+		  <noise>
+		  	<type>gaussian</type>
+			<mean>0.0</mean>
+			<stddev>0.01</stddev>
+		  </noise>
+		</ray>
+		<always_on>1</always_on>
+		<update_rate>5.5</update_rate>
+		<visualize>true</visualize>
+	  </sensor>
+	  <sensor name="gps" type="gps">
+      	<pose>0 .252 -.041 0 0 0</pose>
+	  	<update_rate>10.0</update_rate>
+		<always_on>true</always_on>
+		<gps>
+		  <position_sensing>
+		  	<horizontal>
+			  <noise type="gaussian">
+			    <mean>0</mean>
+				<stddev>0</stddev>
+			  </noise>
+			</horizontal>
+		  </position_sensing>
+		</gps>
+	  </sensor>
+	  <sensor name="imu" type="imu">
+      	<pose>0 .252 -.041 0 0 0</pose>
+	  	<update_rate>10.0</update_rate>
+		<always_on>true</always_on>
+		<imu>
+		</imu>
+	  </sensor>
+    </link>
+    <link name="RockerLeft">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1.724</mass>
+        <pose>-.371 -.107 -.112 0 0 0</pose>
+        <inertia>
+          <ixx>.14559</ixx>
+          <ixy>-.0182</ixy>
+          <ixz>-.011</ixz>
+          <iyy>.03877</iyy>
+          <iyz>-.04287</iyz>
+          <izz>.1255</izz>
+        </inertia>
+      </inertial>
+      <visual name="RockerLeft_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://robot-Ascent_armless/meshes/rockerLeft.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Frame-RockerLeft" type="revolute">
+      <parent>Frame</parent>
+      <child>RockerLeft</child>
+      <pose>-.363 .015 .048 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="RockerRight">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1.72</mass>
+        <pose>.37344 -.1067 -.117 0 0 0</pose>
+        <inertia>
+          <ixx>.1495</ixx>
+          <ixy>.01923</ixy>
+          <ixz>.011</ixz>
+          <iyy>.03793</iyy>
+          <iyz>-.04278</iyz>
+          <izz>.13081</izz>
+        </inertia>
+      </inertial>
+      <visual name="RockerRight_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://robot-Ascent_armless/meshes/rockerRight.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Frame-RockerRight" type="revolute">
+      <parent>Frame</parent>
+      <child>RockerRight</child>
+      <pose>.363 .015 .048 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="BogieLeft">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1.90509</mass>
+        <pose>-.414 .246 -.231 0 0 0</pose>
+        <inertia>
+          <ixx>.07228</ixx>
+          <ixy>0</ixy>
+          <ixz>-0.005</ixz>
+          <iyy>.0138</iyy>
+          <iyz>.0003</iyz>
+          <izz>.0738</izz>
+        </inertia>
+      </inertial>
+      <visual name="BogieLeft_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://robot-Ascent_armless/meshes/bogieLeft.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="RockerLeft-BogieLeft" type="revolute">
+      <parent>RockerLeft</parent>
+      <child>BogieLeft</child>
+      <pose>-.401 .253 -.112 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel2">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-.561 -.397 -.268 0 0 0</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel2_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://robot-Ascent_armless/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="Wheel2" type="revolute">
+      <parent>RockerLeft</parent>
+      <child>Wheel2</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="BogieRight">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1.905</mass>
+        <pose>.411 .246 -.2286 0 0 0</pose>
+        <inertia>
+          <ixx>.07023</ixx>
+          <ixy>.00012</ixy>
+          <ixz>.00436</ixz>
+          <iyy>.01288</iyy>
+          <iyz>.00041</iyz>
+          <izz>.07091</izz>
+        </inertia>
+      </inertial>
+      <visual name="BogieRight_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <material>
+          <ambient>0.752941176470588 0.752941176470588 0.752941176470588 1</ambient>
+          <diffuse>0.752941176470588 0.752941176470588 0.752941176470588 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <uri>model://robot-Ascent_armless/meshes/bogieRight.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="RockerRight-BogieRight" type="revolute">
+      <parent>RockerRight</parent>
+      <child>BogieRight</child>
+      <pose>.401 .253 -.112 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel5">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>.561 -.398 -.267 0 0 3.142</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel5_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://robot-Ascent_armless/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="Wheel5" type="revolute">
+      <parent>RockerRight</parent>
+      <child>Wheel5</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel0">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-.561 .463 -.269 0 0 0</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel0_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://robot-Ascent_armless/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="Wheel0" type="revolute">
+      <parent>BogieLeft</parent>
+      <child>Wheel0</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>-1 0 0 </xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel1">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-.561 .033 -.268 0 0 0</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel1_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://robot-Ascent_armless/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="Wheel1" type="revolute">
+      <parent>BogieLeft</parent>
+      <child>Wheel1</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel3">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>.561 .463 -.269 0 0 3.142</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel3_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://robot-Ascent_armless/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="Wheel3" type="revolute">
+      <parent>BogieRight</parent>
+      <child>Wheel3</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="Wheel4">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>.561 .032 -.267 0 0 3.142</pose>
+      <inertial>
+        <mass>.907</mass>
+        <pose>0 0 .00699 0 0 0</pose>
+        <inertia>
+          <ixx>.00699</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>.00579</iyy>
+          <iyz>0</iyz>
+          <izz>.00579</izz>
+        </inertia>
+      </inertial>
+      <visual name="Wheel4_visual">
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.4 .4 .4 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://robot-Ascent_armless/meshes/wheel.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose>.0953 0 0 0 1.57 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.1143</radius>
+            <length>.1905</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <slip1>1</slip1>
+              <slip2>1</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="Wheel4" type="revolute">
+      <parent>BogieRight</parent>
+      <child>Wheel4</child>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="DiffA">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0 .1 .048 0 0 0</pose>
+    </link>
+    <joint name="Frame-DiffA" type="revolute">
+      <parent>Frame</parent>
+      <child>DiffA</child>
+      <pose>0 .1 .048 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <joint name="RockerLeft-DiffA_gearbox" type="gearbox">
+      <parent>RockerLeft</parent>
+      <child>DiffA</child>
+      <gearbox_ratio>-1</gearbox_ratio>
+      <gearbox_reference_body>RockerLeft</gearbox_reference_body>
+      <axis>
+        <xyz>1 0 0</xyz>
+      </axis>
+      <axis2>
+        <xyz>0 1 0</xyz>
+      </axis2>
+    </joint>
+    <joint name="RockerRight-DiffA_gearbox" type="gearbox">
+      <parent>RockerRight</parent>
+      <child>DiffA</child>
+      <gearbox_ratio>-1</gearbox_ratio>
+      <gearbox_reference_body>RockerRight</gearbox_reference_body>
+      <axis>
+        <xyz>1 0 0</xyz>
+      </axis>
+      <axis2>
+        <xyz>0 1 0</xyz>
+      </axis2>
+    </joint>
+	<plugin name="AscentPlugin" filename="libAscentPlugin.so"/>
+  </model>
+</sdf>
