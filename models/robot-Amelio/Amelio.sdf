@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sdf version="1.5">
+    <model name="Amelio">
+        <pose>0 0 0 0 0 0</pose>
+        <link name="frame">
+            <pose>0 0 0 0 0 0</pose>
+            <must_be_base_link>1</must_be_base_link>
+            <inertial>
+                <mass>5.79</mass>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>2.814</ixx>
+                    <ixy>.117</ixy>
+                    <ixz>-.321</ixz>
+                    <iyy>2.533</iyy>
+                    <iyz>.762</iyz>
+                    <izz>.601</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <pose>0 0 0 0 0 0</pose>
+                <material>
+                    <ambient>1 0 0 1</ambient>
+                    <diffuse>1 0 0 1</diffuse>
+                </material>
+                <geometry>
+                    <mesh>
+                        <uri>model://robot-Amelio/meshes/frame.stl</uri>
+                    </mesh>
+                </geometry>
+            </visual>
+            <collision name="collision">
+                <pose>0 0 0 0 0 0</pose>
+                <geometry>
+                    <cylinder>
+                        <radius>0.1</radius>
+                        <length>0.15</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+        </link>
+
+        <!--<link name="diff_bar">
+        </link>
+
+        <joint name="frame-diff_bar" type="revolute">
+    </joint>-->
+
+        <!--Robot Left Side Drive System-->
+        <!--<link name="diff_con_left">
+        </link>
+
+        <joint name="diff_bar-diff_con_left" type="spherical">
+        </joint>
+
+        <link name="sqr_mid_left">
+        </link>
+
+        <joint name="diff_con_left-sqr_mid_left" type="spherical">
+        </joint>
+
+        <link name="bogie_con_left">
+        </link>
+
+        <joint name="sqr_mid_left-bogie_con_left" type="revolute">
+        </joint>
+
+        <link name="bogie_left">
+        </link>
+
+        <joint name="bogie_con_left-bogie_left" type="revolute">
+        </joint>
+
+        <link name="wheel1">
+        </link>
+
+        <joint name="bogie_left-wheel1" type="revolute">
+        </joint>
+
+        <link name="rocker_left">
+        </link>
+
+        <joint name="sqr_mid_left-rocker_left" type="revolute">
+        </joint>
+
+        <link name="wheel0">
+        </link>
+
+        <joint name="rocker_left_left-wheel0" type="revolute">
+        </joint>-->
+
+        <!--Robot Right Side Drive System-->
+        <!--<link name="diff_con_right">
+        </link>
+
+        <joint name="diff_bar-diff_con_right" type="spherical">
+        </joint>
+
+        <link name="sqr_mid_right">
+        </link>
+
+        <joint name="diff_con_right-sqr_mid_right" type="spherical">
+        </joint>-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </model>
+</sdf>
