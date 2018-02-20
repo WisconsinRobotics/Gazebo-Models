@@ -40,43 +40,289 @@
             </collision>
         </link>
 
-        <!--<link name="diff_bar">
+        <link name="diff_bar">
+            <!--<pose>0.173 0 -.032 0 0 0</pose>-->
+            <pose>0 0 0 0 0 0</pose>
+            <inertial>
+                <mass>0.278</mass>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>2.814</ixx>
+                    <ixy>.117</ixy>
+                    <ixz>-.321</ixz>
+                    <iyy>2.533</iyy>
+                    <iyz>.762</iyz>
+                    <izz>.601</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <pose>0 0 0 0 0 0</pose>
+                <material>
+                    <ambient>.2 .2 .2 1</ambient>
+                    <diffuse>.5 .5 .5 1</diffuse>
+                </material>
+                <geometry>
+                    <mesh>
+                        <uri>model://robot-Amelio/meshes/diff_bar.stl</uri>
+                    </mesh>
+                </geometry>
+            </visual>
         </link>
 
         <joint name="frame-diff_bar" type="revolute">
-    </joint>-->
+            <pose>.173 0 -.032 0 0 0</pose>
+            <parent>frame</parent>
+            <child>diff_bar</child>
+            <axis>
+                <xyz>0 0 1</xyz>
+            </axis>
+        </joint>
 
         <!--Robot Left Side Drive System-->
-        <!--<link name="diff_con_left">
+        <link name="diff_con_left">
+            <pose>0 0 0 0 0 0</pose>
+            <inertial>
+                <mass>0.278</mass>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>2.814</ixx>
+                    <ixy>.117</ixy>
+                    <ixz>-.321</ixz>
+                    <iyy>2.533</iyy>
+                    <iyz>.762</iyz>
+                    <izz>.601</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <pose>0 0 0 0 0 0</pose>
+                <material>
+                    <ambient>.2 .2 .2 1</ambient>
+                    <diffuse>.5 .5 .5 1</diffuse>
+                </material>
+                <geometry>
+                    <mesh>
+                        <uri>model://robot-Amelio/meshes/diff_con_left.stl</uri>
+                    </mesh>
+                </geometry>
+            </visual>
         </link>
 
-        <joint name="diff_bar-diff_con_left" type="spherical">
+        <joint name="diff_bar-diff_con_left" type="ball">
+            <pose>.173 .242 -.027 0 0 0</pose>
+            <parent>diff_bar</parent>
+            <child>diff_con_left</child>
         </joint>
 
         <link name="sqr_mid_left">
+            <pose>0 0 0 0 0 0</pose>
+            <inertial>
+                <mass>0.278</mass>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>2.814</ixx>
+                    <ixy>.117</ixy>
+                    <ixz>-.321</ixz>
+                    <iyy>2.533</iyy>
+                    <iyz>.762</iyz>
+                    <izz>.601</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <pose>0 0 0 0 0 0</pose>
+                <material>
+                    <ambient>.2 .2 .2 1</ambient>
+                    <diffuse>.5 .5 .5 1</diffuse>
+                </material>
+                <geometry>
+                    <mesh>
+                        <uri>model://robot-Amelio/meshes/sqr_mid_left.stl</uri>
+                    </mesh>
+                </geometry>
+            </visual>
         </link>
 
-        <joint name="diff_con_left-sqr_mid_left" type="spherical">
+        <joint name="diff_con_left-sqr_mid_left" type="ball">
+            <pose>0 .242 -.027 0 0 0</pose>
+            <parent>diff_con_left</parent>
+            <child>sqr_mid_left</child>
         </joint>
 
+        <joint name="frame-sqr_mid_left" type="revolute">
+            <pose>0 0.243 0 0 0 0</pose>
+            <parent>frame</parent>
+            <child>sqr_mid_left</child>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+
         <link name="bogie_con_left">
+            <pose>0 0 0 0 0 0</pose>
+            <inertial>
+                <mass>0.278</mass>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>2.814</ixx>
+                    <ixy>.117</ixy>
+                    <ixz>-.321</ixz>
+                    <iyy>2.533</iyy>
+                    <iyz>.762</iyz>
+                    <izz>.601</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <pose>0 0 0 0 0 0</pose>
+                <material>
+                    <ambient>.2 .2 .2 1</ambient>
+                    <diffuse>.5 .5 .5 1</diffuse>
+                </material>
+                <geometry>
+                    <mesh>
+                        <uri>model://robot-Amelio/meshes/bogie_con_left.stl</uri>
+                    </mesh>
+                </geometry>
+            </visual>
         </link>
 
         <joint name="sqr_mid_left-bogie_con_left" type="revolute">
+            <pose>-0.076 .270 .001 0 0 0</pose>
+            <parent>sqr_mid_left</parent>
+            <child>bogie_con_left</child>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
         </joint>
 
         <link name="bogie_left">
+            <pose>0 0 0 0 0 0</pose>
+            <inertial>
+                <mass>0.278</mass>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>2.814</ixx>
+                    <ixy>.117</ixy>
+                    <ixz>-.321</ixz>
+                    <iyy>2.533</iyy>
+                    <iyz>.762</iyz>
+                    <izz>.601</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <pose>0 0 0 0 0 0</pose>
+                <material>
+                    <ambient>.2 .2 .2 1</ambient>
+                    <diffuse>.5 .5 .5 1</diffuse>
+                </material>
+                <geometry>
+                    <mesh>
+                        <uri>model://robot-Amelio/meshes/bogie_left.stl</uri>
+                    </mesh>
+                </geometry>
+            </visual>
         </link>
 
         <joint name="bogie_con_left-bogie_left" type="revolute">
+            <pose>-.279 .27 0 0 0 0</pose>
+            <parent>bogie_con_left</parent>
+            <child>bogie_left</child>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
         </joint>
 
         <link name="wheel1">
+            <pose>0 0 0 0 0 0</pose>
+            <inertial>
+                <mass>0.278</mass>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>2.814</ixx>
+                    <ixy>.117</ixy>
+                    <ixz>-.321</ixz>
+                    <iyy>2.533</iyy>
+                    <iyz>.762</iyz>
+                    <izz>.601</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <pose>0 0 0 0 0 0</pose>
+                <material>
+                    <ambient>.2 .2 .2 1</ambient>
+                    <diffuse>.5 .5 .5 1</diffuse>
+                </material>
+                <geometry>
+                    <mesh>
+                        <uri>model://robot-Amelio/meshes/wheel1.stl</uri>
+                    </mesh>
+                </geometry>
+            </visual>
+            <collision name="collision">
+                <pose>-.0326 .399 -.131 1.5708 0 0</pose>
+                <geometry>
+                    <cylinder>
+                        <radius>0.11</radius>
+                        <length>.171</length>
+                    </cylinder>
+                </geometry>
+            </collision>
         </link>
 
         <joint name="bogie_left-wheel1" type="revolute">
+            <pose>-.0326 .484 -.131 0 0 0</pose>
+            <parent>bogie_left</parent>
+            <child>wheel1</child>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
         </joint>
 
+        <link name="wheel2">
+            <pose>0 0 0 0 0 0</pose>
+            <inertial>
+                <mass>0.278</mass>
+                <pose>0 0 0 0 0 0</pose>
+                <inertia>
+                    <ixx>2.814</ixx>
+                    <ixy>.117</ixy>
+                    <ixz>-.321</ixz>
+                    <iyy>2.533</iyy>
+                    <iyz>.762</iyz>
+                    <izz>.601</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <pose>0 0 0 0 0 0</pose>
+                <material>
+                    <ambient>.2 .2 .2 1</ambient>
+                    <diffuse>.5 .5 .5 1</diffuse>
+                </material>
+                <geometry>
+                    <mesh>
+                        <uri>model://robot-Amelio/meshes/wheel2.stl</uri>
+                    </mesh>
+                </geometry>
+            </visual>
+            <collision name="collision">
+                <pose>-.692 .399 -.127 1.5708 0 0</pose>
+                <geometry>
+                    <cylinder>
+                        <radius>0.11</radius>
+                        <length>.171</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+        </link>
+
+        <joint name="bogie_left-wheel2" type="revolute">
+            <pose>-.692 .484 -.127 0 0 0</pose>
+            <parent>bogie_left</parent>
+            <child>wheel2</child>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+<!--
         <link name="rocker_left">
         </link>
 
