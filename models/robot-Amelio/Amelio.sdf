@@ -322,11 +322,42 @@
                 <xyz>0 1 0</xyz>
             </axis>
         </joint>
-<!--
+
         <link name="rocker_left">
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+            <mass>0.278</mass>
+            <pose>0 0 0 0 0 0</pose>
+            <inertia>
+                <ixx>2.814</ixx>
+                <ixy>.117</ixy>
+                <ixz>-.321</ixz>
+                <iyy>2.533</iyy>
+                <iyz>.762</iyz>
+                <izz>.601</izz>
+            </inertia>
+        </inertial>
+        <visual name="visual">
+            <pose>0 0 0 0 0 0</pose>
+            <material>
+                <ambient>.2 .2 .2 1</ambient>
+                <diffuse>.5 .5 .5 1</diffuse>
+            </material>
+            <geometry>
+                <mesh>
+                    <uri>model://robot-Amelio/meshes/rocker_left.stl</uri>
+                </mesh>
+            </geometry>
+        </visual>
         </link>
 
         <joint name="sqr_mid_left-rocker_left" type="revolute">
+          <pose>0.0762 0.27 0 0 0 0</pose>
+          <parent>sqr_mid_left</parent>
+          <child>rocker_left</child>
+          <axis>
+              <xyz>0 1 0</xyz>
+          </axis>
         </joint>
 
         <link name="wheel0">
