@@ -359,7 +359,7 @@
               <xyz>0 1 0</xyz>
           </axis>
         </joint>
-<!--
+
         <link name="wheel0">
         <pose>0 0 0 0 0 0</pose>
         <inertial>
@@ -386,7 +386,7 @@
                 </mesh>
             </geometry>
         </visual>
-        <collision name="collision">
+    <!--    <collision name="collision">
             <pose>-.692 .399 -.127 1.5708 0 0</pose>
             <geometry>
                 <cylinder>
@@ -395,11 +395,18 @@
                 </cylinder>
             </geometry>
         </collision>
+        -->
         </link>
 
-        <joint name="rocker_left_left-wheel0" type="revolute">
-        </joint>-->
--->
+        <joint name="rocker_left-wheel0" type="revolute">
+          <pose>-.602 .484 -.127 0 0 0</pose>
+          <parent>rocker_left</parent>
+          <child>wheel0</child>
+          <axis>
+              <xyz>0 1 0</xyz>
+          </axis>
+        </joint>
+
         <!--Robot Right Side Drive System-->
         <!--<link name="diff_con_right">
         </link>
