@@ -399,7 +399,7 @@
         </link>
 
         <joint name="rocker_left-wheel0" type="revolute">
-          <pose>-.602 .484 -.127 0 0 0</pose>
+          <pose> .602 .484 -.127 0 0 0</pose>
           <parent>rocker_left</parent>
           <child>wheel0</child>
           <axis>
