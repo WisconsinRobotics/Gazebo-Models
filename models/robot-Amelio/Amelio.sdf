@@ -742,6 +742,181 @@
             </axis>
         </joint>
 
+        <link name="rocker_right">
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+            <mass>0.278</mass>
+            <pose>0 0 0 0 0 0</pose>
+            <inertia>
+                <ixx>2.814</ixx>
+                <ixy>.117</ixy>
+                <ixz>-.321</ixz>
+                <iyy>2.533</iyy>
+                <iyz>.762</iyz>
+                <izz>.601</izz>
+            </inertia>
+        </inertial>
+        <visual name="visual">
+            <pose>0 0 0 0 0 0</pose>
+            <material>
+                <ambient>.2 .2 .2 1</ambient>
+                <diffuse>.5 .5 .5 1</diffuse>
+            </material>
+            <geometry>
+                <mesh>
+                    <uri>model://robot-Amelio/meshes/rocker_right.stl</uri>
+                </mesh>
+            </geometry>
+        </visual>
+        </link>
+
+        <joint name="sqr_mid_right-rocker_right" type="revolute">
+          <pose>.0762 -.27 0 0 0 0</pose>
+          <parent>sqr_mid_right</parent>
+          <child>rocker_right</child>
+          <axis>
+              <xyz>0 1 0</xyz>
+          </axis>
+        </joint>
+
+        <link name="wheel5">
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+            <mass>0.278</mass>
+            <pose>0 0 0 0 0 0</pose>
+            <inertia>
+                <ixx>2.814</ixx>
+                <ixy>.117</ixy>
+                <ixz>-.321</ixz>
+                <iyy>2.533</iyy>
+                <iyz>.762</iyz>
+                <izz>.601</izz>
+            </inertia>
+        </inertial>
+        <visual name="visual">
+            <pose>0 0 0 0 0 0</pose>
+            <material>
+                <ambient>1 0 0 1</ambient>
+                <diffuse>1 0 0 1</diffuse>
+            </material>
+            <geometry>
+                <mesh>
+                    <uri>model://robot-Amelio/meshes/wheel5.stl</uri>
+                </mesh>
+            </geometry>
+        </visual>
+        <collision name="collision">
+            <pose> .602 -.399 -.127 1.5708 0 0</pose>
+            <geometry>
+                <cylinder>
+                    <radius>0.11</radius>
+                    <length>.171</length>
+                </cylinder>
+            </geometry>
+        </collision>
+        </link>
+
+        <joint name="rocker_right-wheel5" type="revolute">
+          <pose> .602 -.484 -.127 0 0 0</pose>
+          <parent>rocker_right</parent>
+          <child>wheel5</child>
+          <axis>
+              <xyz>0 1 0</xyz>
+          </axis>
+        </joint>
+
+        <link name="linear_actuator_right_front">
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+            <mass>0.278</mass>
+            <pose>0 0 0 0 0 0</pose>
+            <inertia>
+                <ixx>2.814</ixx>
+                <ixy>.117</ixy>
+                <ixz>-.321</ixz>
+                <iyy>2.533</iyy>
+                <iyz>.762</iyz>
+                <izz>.601</izz>
+            </inertia>
+        </inertial>
+        <visual name="visual">
+            <pose>0 0 0 0 0 0</pose>
+            <material>
+                <ambient>.2 .2 .2 1</ambient>
+                <diffuse>.5 .5 .5 1</diffuse>
+            </material>
+            <geometry>
+                <mesh>
+                    <uri>model://robot-Amelio/meshes/linear_actuator_right_front.stl</uri>
+                </mesh>
+            </geometry>
+        </visual>
+        </link>
+
+        <joint name="sqr_mid_right-linear_actuator_right_front" type="revolute">
+          <pose> .152 -.259 .213 0 0 0</pose>
+          <parent>sqr_mid_right</parent>
+          <child>linear_actuator_right_front</child>
+          <axis>
+              <xyz>0 1 0</xyz>
+          </axis>
+        </joint>
+
+        <joint name="rocker_right-linear_actuator_right_front" type="revolute">
+          <pose> .186 -.280 0 0 0 0</pose>
+          <parent>rocker_right</parent>
+          <child>linear_actuator_right_front</child>
+          <axis>
+              <xyz>0 1 0</xyz>
+          </axis>
+        </joint>
+
+        <link name="linear_actuator_right_back">
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+            <mass>0.278</mass>
+            <pose>0 0 0 0 0 0</pose>
+            <inertia>
+                <ixx>2.814</ixx>
+                <ixy>.117</ixy>
+                <ixz>-.321</ixz>
+                <iyy>2.533</iyy>
+                <iyz>.762</iyz>
+                <izz>.601</izz>
+            </inertia>
+        </inertial>
+        <visual name="visual">
+            <pose>0 0 0 0 0 0</pose>
+            <material>
+                <ambient>.2 .2 .2 1</ambient>
+                <diffuse>.5 .5 .5 1</diffuse>
+            </material>
+            <geometry>
+                <mesh>
+                    <uri>model://robot-Amelio/meshes/linear_actuator_right_back.stl</uri>
+                </mesh>
+            </geometry>
+        </visual>
+        </link>
+
+        <joint name="sqr_mid_right-linear_actuator_right_back" type="revolute">
+          <pose> -.152 -.259 .238 0 0 0</pose>
+          <parent>sqr_mid_right</parent>
+          <child>linear_actuator_right_back</child>
+          <axis>
+              <xyz>0 1 0</xyz>
+          </axis>
+        </joint>
+
+        <joint name="bogie_con_right-linear_actuator_right_back" type="revolute">
+          <pose> -.186 -.256 0 0 0 0</pose>
+          <parent>bogie_con_right</parent>
+          <child>linear_actuator_right_back</child>
+          <axis>
+              <xyz>0 1 0</xyz>
+          </axis>
+        </joint>
+
         <!--Robot Right Side Drive System-->
         <!--<link name="diff_con_right">
         </link>
