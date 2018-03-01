@@ -6,22 +6,22 @@
             <pose>0 0 0 0 0 0</pose>
             <must_be_base_link>1</must_be_base_link>
             <inertial>
-                <mass>5.79</mass>
+                <mass>6.53</mass>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
-                    <ixx>2.814</ixx>
-                    <ixy>.117</ixy>
-                    <ixz>-.321</ixz>
-                    <iyy>2.533</iyy>
-                    <iyz>.762</iyz>
-                    <izz>.601</izz>
+                    <ixx>.319</ixx>
+                    <ixy>.007</ixy>
+                    <ixz>-.005</ixz>
+                    <iyy>.373</iyy>
+                    <iyz>.003</iyz>
+                    <izz>.323</izz>
                 </inertia>
             </inertial>
             <visual name="visual">
                 <pose>0 0 0 0 0 0</pose>
                 <material>
-                    <ambient>1 0 0 1</ambient>
-                    <diffuse>1 0 0 1</diffuse>
+                    <ambient>.2 .2 .2 1</ambient>
+                    <diffuse>0 1 0 1</diffuse>
                 </material>
                 <geometry>
                     <mesh>
@@ -32,27 +32,25 @@
             <collision name="collision">
                 <pose>0 0 0 0 0 0</pose>
                 <geometry>
-                    <cylinder>
-                        <radius>0.1</radius>
-                        <length>0.15</length>
-                    </cylinder>
+                    <boz>
+                        <size>0.68 0.5 0.032</size>
+                    </box>
                 </geometry>
             </collision>
         </link>
 
         <link name="diff_bar">
-            <!--<pose>0.173 0 -.032 0 0 0</pose>-->
             <pose>0 0 0 0 0 0</pose>
             <inertial>
                 <mass>0.278</mass>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
-                    <ixx>2.814</ixx>
-                    <ixy>.117</ixy>
-                    <ixz>-.321</ixz>
-                    <iyy>2.533</iyy>
-                    <iyz>.762</iyz>
-                    <izz>.601</izz>
+                    <ixx>0.0048</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.0048</izz>
                 </inertia>
             </inertial>
             <visual name="visual">
@@ -82,15 +80,15 @@
         <link name="diff_con_left">
             <pose>0 0 0 0 0 0</pose>
             <inertial>
-                <mass>0.278</mass>
+                <mass>0.5</mass>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
-                    <ixx>2.814</ixx>
-                    <ixy>.117</ixy>
-                    <ixz>-.321</ixz>
-                    <iyy>2.533</iyy>
-                    <iyz>.762</iyz>
-                    <izz>.601</izz>
+                    <ixx>0</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0</iyy>
+                    <iyz>0</iyz>
+                    <izz>0</izz>
                 </inertia>
             </inertial>
             <visual name="visual">
@@ -116,15 +114,15 @@
         <link name="sqr_mid_left">
             <pose>0 0 0 0 0 0</pose>
             <inertial>
-                <mass>0.278</mass>
+                <mass>0.797</mass>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
-                    <ixx>2.814</ixx>
-                    <ixy>.117</ixy>
-                    <ixz>-.321</ixz>
-                    <iyy>2.533</iyy>
-                    <iyz>.762</iyz>
-                    <izz>.601</izz>
+                    <ixx>.008</ixx>
+                    <ixy>0</ixy>
+                    <ixz>.001</ixz>
+                    <iyy>.012</iyy>
+                    <iyz>0</iyz>
+                    <izz>.005</izz>
                 </inertia>
             </inertial>
             <visual name="visual">
@@ -160,15 +158,15 @@
         <link name="bogie_con_left">
             <pose>0 0 0 0 0 0</pose>
             <inertial>
-                <mass>0.278</mass>
+                <mass>0.066</mass>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
-                    <ixx>2.814</ixx>
-                    <ixy>.117</ixy>
-                    <ixz>-.321</ixz>
-                    <iyy>2.533</iyy>
-                    <iyz>.762</iyz>
-                    <izz>.601</izz>
+                    <ixx>0</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0</iyy>
+                    <iyz>0</iyz>
+                    <izz>0</izz>
                 </inertia>
             </inertial>
             <visual name="visual">
@@ -536,7 +534,7 @@
         <link name="sqr_mid_right">
             <pose>0 0 0 0 0 0</pose>
             <inertial>
-                <mass>0.278</mass>
+                <mass>0.797</mass>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
                     <ixx>2.814</ixx>
@@ -579,15 +577,15 @@
         <link name="bogie_con_right">
             <pose>0 0 0 0 0 0</pose>
             <inertial>
-                <mass>0.278</mass>
+                <mass>0.066</mass>
                 <pose>0 0 0 0 0 0</pose>
                 <inertia>
-                    <ixx>2.814</ixx>
-                    <ixy>.117</ixy>
-                    <ixz>-.321</ixz>
-                    <iyy>2.533</iyy>
-                    <iyz>.762</iyz>
-                    <izz>.601</izz>
+                    <ixx>0</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0</iyy>
+                    <iyz>0</iyz>
+                    <izz>0</izz>
                 </inertia>
             </inertial>
             <visual name="visual">
@@ -916,48 +914,6 @@
               <xyz>0 1 0</xyz>
           </axis>
         </joint>
-
-        <!--Robot Right Side Drive System-->
-        <!--<link name="diff_con_right">
-        </link>
-
-        <joint name="diff_bar-diff_con_right" type="spherical">
-        </joint>
-
-        <link name="sqr_mid_right">
-        </link>
-
-        <joint name="diff_con_right-sqr_mid_right" type="spherical">
-        </joint>-->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     </model>
 </sdf>
