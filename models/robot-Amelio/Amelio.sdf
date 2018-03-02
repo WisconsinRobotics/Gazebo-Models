@@ -32,7 +32,7 @@
             <collision name="collision">
                 <pose>0 0 0 0 0 0</pose>
                 <geometry>
-                    <boz>
+                    <box>
                         <size>0.68 0.5 0.032</size>
                     </box>
                 </geometry>
